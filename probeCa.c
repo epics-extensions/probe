@@ -482,7 +482,7 @@ void quitMonitor(Widget w, XtPointer clientData,
 
 void probeCASetValue(atom *ch)
 {
-    int    stat;
+    int stat;    
   
     if (ch->connected) {
 	switch(ca_field_type(ch->chId)) {
@@ -494,7 +494,11 @@ void probeCASetValue(atom *ch)
 	    stat = ca_put(DBF_SHORT, ch->chId, &(ch->data.E.value));
 	    SEVCHK(stat,"setValue: ca_put for valueE failed!");
 	    break;
-	case DBF_CHAR: 
+	case DBF_CHAR:
+	    ch->data.L.value=(long)(unsigned char)ch->data.L.value;
+	    stat = ca_put(DBF_LONG, ch->chId, &(ch->data.L.value));
+	    SEVCHK(stat,"setValue: ca_put for valueL failed!");
+	    break;
 	case DBF_INT:     
 	case DBF_LONG:
 	    stat = ca_put(DBF_LONG, ch->chId, &(ch->data.L.value));

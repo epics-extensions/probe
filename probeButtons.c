@@ -88,9 +88,29 @@ void updateButtons(atom *ch, int dummy)
 {
     Buttons *b = &(ch->adjust.buttons);
 
+  /* Return if the dialog is not up */
     if ((ch->adjust.upMask & ADJUST_BUTTONS_UP) == 0) return;
 
+  /* Return if this value is already selected */
     if (b->buttonsSelected == ch->data.E.value) return;
+
+  /* Return if there are no buttons */
+    if(ch->info.data.E.no_str == 0) return;
+
+  /* Return if the current value is out of range */
+    if (ch->data.E.value >= MAX_ADJUST_BUTTONS || ch->data.E.value <= 0) {
+	xerrmsg("updateButtons: Enum value [%d] out of range",
+	  ch->data.E.value);
+	return;
+    }
+
+  /* Return if there is no button defined */
+    if (!b->buttons[b->buttonsSelected]) {
+	xerrmsg("updateButtons: No button for enum value=%d",
+	  ch->data.E.value);
+	return;
+    }
+    
     XtVaSetValues(b->buttons[b->buttonsSelected],
       XmNset,False,
       NULL);
@@ -133,7 +153,7 @@ void createButtons(atom *ch)
     XtSetArg(wargs[n], XmNentryClass, xmToggleButtonWidgetClass); n++;
     XtSetArg(wargs[n], XmNnumColumns, 4); n++;
     b->panel = XmCreateRadioBox(ch->adjust.panel, "stateButton", wargs, n);
-    for (i=0; i<ch->info.data.E.no_str; i++) {
+    for (i=0; i < ch->info.data.E.no_str; i++) {
 	n = 0;
 	if (i == ch->data.E.value) {
 	    b->buttonsSelected = i;

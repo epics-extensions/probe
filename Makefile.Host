@@ -15,11 +15,20 @@ include $(TOP)/config/CONFIG_EXTENSIONS
 ifdef WIN32
 #HOST_OPT = YES
 else
-#HOST_OPT = NO
+HOST_OPT = NO
 endif
 
 CMPLR = STRICT
 #STATIC_BUILD = YES 
+
+# Source browser options
+ifeq ($(HOST_OPT),NO)
+  ifeq ($(ANSI),ACC)
+    ifeq ($(OS_CLASS),solaris)
+      USR_CFLAGS += -xsb
+    endif
+  endif
+endif
 
 ifeq ($(OS_CLASS),solaris)
 #PURIFY=YES

@@ -44,6 +44,8 @@ extern Widget createAndPopupProductDescriptionShell();
 static void createFonts();
 void killWidget(Widget w, XtPointer clientdata, XtPointer calldata);
 static void usage(void);
+static void questionDialogCb(Widget w, XtPointer clientData,
+  XtPointer callbackStruct);
 
 /* Resources */
 static String fallbackResources[] = {
@@ -475,6 +477,101 @@ void xerrmsg(const char *fmt, ...)
 #else
 	fprintf(stderr,"%s\n",lstring);
 #endif
+    }
+}
+
+int questionDialog(char *message, char *okBtnLabel, char *cancelBtnLabel,
+  char *helpBtnLabel)
+{
+    Widget questionDialog=NULL;
+    XmString xmString;
+    XEvent event;
+    int questionDialogAnswer=0;
+    
+    if(message == NULL) return -1;
+    
+  /* Create the dialog */
+    questionDialog = XmCreateQuestionDialog(toplevel,"questionDialog",NULL,0);
+    XtVaSetValues(questionDialog,XmNdialogStyle,XmDIALOG_APPLICATION_MODAL,
+      NULL);
+    XtVaSetValues(XtParent(questionDialog),XmNtitle,"Question ?",NULL);
+    XtAddCallback(questionDialog,XmNokCallback,questionDialogCb,
+      &questionDialogAnswer);
+    XtAddCallback(questionDialog,XmNcancelCallback,questionDialogCb,
+      &questionDialogAnswer);
+    XtAddCallback(questionDialog,XmNhelpCallback,questionDialogCb,
+      &questionDialogAnswer);
+    
+    xmString = XmStringCreateLtoR(message,XmFONTLIST_DEFAULT_TAG);
+    XtVaSetValues(questionDialog,XmNmessageString,xmString,NULL);
+    XmStringFree(xmString);
+    if(okBtnLabel) {
+	xmString = XmStringCreateLocalized(okBtnLabel);
+	XtVaSetValues(questionDialog,XmNokLabelString,xmString,NULL);
+	XmStringFree(xmString);
+	XtManageChild(XmMessageBoxGetChild(questionDialog,
+			XmDIALOG_OK_BUTTON));
+    } else {
+	XtUnmanageChild(XmMessageBoxGetChild(questionDialog,
+			  XmDIALOG_OK_BUTTON));
+    }
+    if(cancelBtnLabel) {
+	xmString = XmStringCreateLocalized(cancelBtnLabel);
+	XtVaSetValues(questionDialog,XmNcancelLabelString,xmString,NULL);
+	XmStringFree(xmString);
+	XtManageChild(XmMessageBoxGetChild(questionDialog,
+			XmDIALOG_CANCEL_BUTTON));
+    } else {
+	XtUnmanageChild(XmMessageBoxGetChild(questionDialog,
+			  XmDIALOG_CANCEL_BUTTON));
+    }
+    if(helpBtnLabel) {
+	xmString = XmStringCreateLocalized(helpBtnLabel);
+	XtVaSetValues(questionDialog,XmNhelpLabelString,xmString,NULL);
+	XmStringFree(xmString);
+	XtManageChild(XmMessageBoxGetChild(questionDialog,
+			XmDIALOG_HELP_BUTTON));
+    } else {
+	XtUnmanageChild(XmMessageBoxGetChild(questionDialog,
+			  XmDIALOG_HELP_BUTTON));
+    }
+    questionDialogAnswer=0;
+    XtManageChild(questionDialog);
+    XSync(display,FALSE);
+    
+  /* Force Modal */
+    XtAddGrab(XtParent(questionDialog),True,False);
+    XmUpdateDisplay(XtParent(questionDialog));
+    while(!questionDialogAnswer || XtAppPending(app)) {
+	XtAppNextEvent(app,&event);
+	XtDispatchEvent(&event);
+    }
+    XtUnmanageChild(questionDialog);
+    XtRemoveGrab(XtParent(questionDialog));
+    XtDestroyWidget(questionDialog);
+
+    return questionDialogAnswer;
+}
+
+static void questionDialogCb(Widget w, XtPointer clientData,
+  XtPointer callbackStruct)
+{
+    XmAnyCallbackStruct *cbs = (XmAnyCallbackStruct *)callbackStruct;
+    int *questionDialogAnswer = (int *)clientData;
+
+    switch (cbs->reason) {
+    case XmCR_OK:
+	*questionDialogAnswer = 1;
+	break;
+    case XmCR_CANCEL:
+	*questionDialogAnswer = 2;
+	break;
+    case XmCR_HELP:
+	*questionDialogAnswer = 3;
+	break;
+    default :
+	*questionDialogAnswer = -1;
+	break;
     }
 }
 

@@ -94,11 +94,14 @@ void initFormat(atom *channel)
     strcpy(channel->format.str1,DEFAULT_FORMAT_STR);
 }
 
+/* Note that format is only used for float and double so this routine
+ * doesn't handle the others */
 void setChannelDefaults(atom *channel) 
 {
     int i = 0;
     int j = 0;
 
+  /* Escape any characters that might appear in a format string */
     while ((channel->format.defaultUnits[i] = channel->info.data.D.units[j++])) {
 	switch (channel->format.defaultUnits[i]) {
 	case '%' : 
@@ -155,7 +158,7 @@ void makeHistFormatStr(atom *channel)
     sprintf(str,"%%-%d.%d%c",channel->format.defaultWidth,
       channel->format.defaultDecimalPlaces,channel->format.defaultFormat);
 
-    sprintf(channel->hist.formatStr,"Start Time - %%s\n\nMax = %s - %%s\nMin = %s - %%s\n\n",
+    sprintf(channel->hist.formatStr,"Start Time - %%s\n\nmax = %s - %%s\nmin = %s - %%s\n\n",
       str,str);
 }
 
@@ -313,7 +316,7 @@ void formatCallback(Widget w, XtPointer clientData,
     }
 
   /* 
-   *  Create 'cancel' button
+   *  Create cancel button
    */
 
     n = 0;

@@ -72,9 +72,12 @@ void updateHistory(atom *channel)
 	} 
 	switch(ca_field_type(channel->chId)) {
 	case DBF_ENUM   : 
-	    sprintf(message,"Start Time - %s\n\nlast modified - %s\nlast message = "
-	      ,channel->hist.startTimeStr,channel->hist.lastMaxTimeStr);
-	    if (strlen(channel->info.data.E.strs[channel->hist.min.E]) > (size_t)0) {
+	    sprintf(message,"Start Time - %s\n\nlast modified - %s\n"
+	      "prev message = ",
+	      channel->hist.startTimeStr,channel->hist.lastMaxTimeStr);
+	    if (channel->hist.min.E >= 0 &&
+	      channel->hist.min.E < channel->info.data.E.no_str &&
+	      strlen(channel->info.data.E.strs[channel->hist.min.E]) > (size_t)0) {
 		sprintf(message,"%s%s\n\n",message,
 		  channel->info.data.E.strs[channel->hist.min.E]);
 	    } else {
@@ -83,14 +86,14 @@ void updateHistory(atom *channel)
 	    break;
 	case DBF_STRING :     
 	    sprintf(message,
-	      "Start Time - %s\n\nlast modified - %s\nlast message = %s\n\n",
+	      "Start Time - %s\n\nlast modified - %s\nprev message = %s\n\n",
 	      channel->hist.startTimeStr,channel->hist.lastMaxTimeStr,
 	      channel->hist.min.S);
 	    break;
 	case DBF_CHAR   :  
 	case DBF_INT    :           
 	case DBF_LONG   : 
-	    sprintf(message,"Start Time - %s\n\nMax = %ld - %s\nMin = %ld - %s\n\n",
+	    sprintf(message,"Start Time - %s\n\nmax = %ld - %s\nmin = %ld - %s\n\n",
 	      channel->hist.startTimeStr,channel->hist.max.L,
 	      channel->hist.lastMaxTimeStr,channel->hist.min.L,
 	      channel->hist.lastMinTimeStr);
@@ -161,7 +164,10 @@ void resetHistory(atom *channel)
 	    channel->hist.min.E = channel->data.E.value;
 	    channel->hist.max.E = channel->data.E.value;  
 	    break;
-	case DBF_CHAR   :     
+	case DBF_CHAR   :
+	    channel->hist.min.L = (long)(unsigned char)channel->data.L.value;
+	    channel->hist.max.L = (long)(unsigned char)channel->data.L.value;
+	    break;
 	case DBF_INT    :     
 	case DBF_LONG   :
 	    channel->hist.min.L = channel->data.L.value;
@@ -294,7 +300,8 @@ void updateHistoryInfo(atom *channel)
 	    channel->updateMask |= UPDATE_HIST;
 	    channel->hist.updateMask |= HIST_MAX | HIST_MIN;
 	    break;
-	case DBF_CHAR   :  
+	case DBF_CHAR   :
+	    channel->data.L.value=(long)(unsigned char)channel->data.L.value;
 	case DBF_INT    :           
 	case DBF_LONG   : 
 	    if (channel->hist.max.L < channel->data.L.value) {

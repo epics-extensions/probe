@@ -6,6 +6,7 @@
 * This file is distributed subject to a Software License Agreement found
 * in the file LICENSE that is included with this distribution. 
 \*************************************************************************/
+
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <Xm/Xm.h>
@@ -126,8 +127,13 @@ void textAdjustCallback(Widget w, XtPointer clientData,
     int n;
     long outputL;
     double outputD;
-
-    atom *channel = (atom *) clientData;
+    int stringFound;
+#ifdef ALLOW_ARBITRARY_ENUMS
+    int ans;
+    char message[1024];
+#endif
+    
+    atom *channel = (atom *)clientData;
   
     if (channel->monitored == FALSE) return;
 
@@ -137,26 +143,59 @@ void textAdjustCallback(Widget w, XtPointer clientData,
 	break;
     case DBF_ENUM   :
 	n = 0;
-	do {
+      /* See if it matches a menu string */
+	stringFound=0;
+	for (n=0; n < channel->info.data.E.no_str; n++) {
 	    if (strcmp(XmTextGetString(channel->d[TEXT1].w),
-	      channel->info.data.E.strs[n]) == 0)
-	      break;
-	    n++;
-	} while (n<channel->info.data.E.no_str);
-	if (n < channel->info.data.E.no_str) {
-	    channel->data.E.value = (short) n;
-	    break;
-	}
-	if (sscanf(XmTextGetString(channel->d[TEXT1].w),
-          "%d", &n)) {
-	    if (n < channel->info.data.E.no_str) {
-		channel->data.E.value = (short) n;
+		  channel->info.data.E.strs[n]) == 0) {
+		stringFound=1;
 		break;
 	    }
 	}
-	xerrmsg("textAdjustCallback: Bad value.\n");
+	if (stringFound) {
+	    channel->data.E.value = (short)n;
+	    break;
+	}
+      /* Not found, see if it is a number */
+	if (sscanf(XmTextGetString(channel->d[TEXT1].w),
+          "%d", &n)) {
+	  /* See if it is in range */
+	    if (n < channel->info.data.E.no_str) {
+		channel->data.E.value = (short)n;
+		break;
+	    }
+#ifdef ALLOW_ARBITRARY_ENUMS
+	    sprintf(message,"Are your sure?\n"
+	      "Value=%d is out of range\n"
+	      "for the number of strings [%d]",
+	      n,channel->info.data.E.no_str);
+	    ans=questionDialog(message,"Continue","Abort",NULL);
+	    if(ans == 1) {
+		channel->data.E.value = (short)n;
+		break;
+	    } else {
+		return;
+	    }
+#endif	    
+	}
+      /* Failed. Check if it is because it is out of range */
+	if (n < 0 || n >= channel->info.data.E.no_str) {
+	    xerrmsg("textAdjustCallback: "
+	      "Value [%d]\nis invalid for the number of strings [%d]\n",
+	      n,channel->info.data.E.no_str);
+	} else {
+	    xerrmsg("textAdjustCallback: Bad value\n");
+	}
 	return;
     case DBF_CHAR   : 
+	if (sscanf(XmTextGetString(channel->d[TEXT1].w),"%ld", &outputL) &&
+	    outputL >=0 && outputL < 256) {
+	    channel->data.L.value = outputL;
+	} else {
+	    xerrmsg("textAdjustCallback : Must be integer in range 0-255.\n");
+	    return;
+	}
+	break;
     case DBF_INT    :     
     case DBF_LONG   :
 	if (sscanf(XmTextGetString(channel->d[TEXT1].w),"%ld", &outputL)) {

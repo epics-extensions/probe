@@ -12,12 +12,9 @@
 
 #include <limits.h>
 
-#if 0     /* This is a non-standard file and probably not needed */
-#include <values.h>
-#endif
-
 #define CA_PEND_IO_TIME 10
 #define ECANAMESIZE 34
+#define ALLOW_ARBITRARY_ENUMS
 
 #define long2int(A) \
 ((A)>INT_MAX)?INT_MAX:(((A)<INT_MIN)?INT_MIN:(int)(A))
@@ -102,10 +99,10 @@
 #define MONITOR_UP       32
 #define OPTION_UP        64
 
-    typedef struct DUStruct {
-	void (*proc)();
-	Widget w;
-    } displayProc;
+typedef struct DUStruct {
+    void (*proc)();
+    Widget w;
+} displayProc;
 
 typedef union {
     struct dbr_time_enum   E; 
@@ -280,6 +277,8 @@ void winPrintf(Widget w, ...);
 void errmsg(const char *fmt, ...);
 void xerrmsg(const char *fmt, ...);
 char *timeStamp(void);
+int questionDialog(char *message, char *okBtnLabel, char *cancelBtnLabel,
+  char *helpBtnLabel);
 
 /* probeAdjust.c */
 void adjustCallback(Widget w, XtPointer clientData,

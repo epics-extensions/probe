@@ -106,17 +106,35 @@ void updateDataDisplay(atom *channel,unsigned int i)
 	    winPrintf(channel->d[i].w,"%s",channel->data.S.value);
 	    break;
 	case DBF_ENUM :         
-	    if (strlen(channel->info.data.E.strs[channel->data.E.value]) > (size_t)0) {
+	    if (channel->data.E.value < channel->info.data.E.no_str && 
+	      strlen(channel->info.data.E.strs[channel->data.E.value]) >
+	      (size_t)0) {
 		winPrintf(channel->d[i].w,"%s",
 		  channel->info.data.E.strs[channel->data.E.value]);
 	    } else {
 		winPrintf(channel->d[i].w,"%d",channel->data.E.value);
 	    }
 	    break;
-	case DBF_CHAR   :  
+	case DBF_CHAR   :
+	    channel->data.L.value=(long)(unsigned char)channel->data.L.value;
+#if 1
+	    winPrintf(channel->d[i].w,"%hu %s",
+	      (unsigned char)channel->data.L.value,
+	      channel->info.data.L.units?channel->info.data.L.units:"");
+#else	    
+	    winPrintf(channel->d[i].w,"%hu",
+	      (unsigned char)channel->data.L.value);
+#endif
+	    break;
 	case DBF_INT    :
 	case DBF_LONG   : 
+#if 1
+	    winPrintf(channel->d[i].w,"%d %s",
+	      channel->data.L.value,
+	      channel->info.data.L.units?channel->info.data.L.units:"");
+#else	    
 	    winPrintf(channel->d[i].w,"%d",channel->data.L.value);
+#endif	    
 	    break;
 	case DBF_FLOAT  :  
 	case DBF_DOUBLE :
@@ -148,14 +166,17 @@ void updateTextDisplay(atom *channel,unsigned int i)
 	XmTextSetString(channel->d[i].w,tmp);
 	break;
     case DBF_ENUM :         
-	if (strlen(channel->info.data.E.strs[channel->data.E.value]) > (size_t)0) {
+	if (channel->data.E.value < channel->info.data.E.no_str && 
+	  strlen(channel->info.data.E.strs[channel->data.E.value]) >
+	  (size_t)0) {
 	    sprintf(tmp,"%s",channel->info.data.E.strs[channel->data.E.value]);
 	} else {
 	    sprintf(tmp,"%d",channel->data.E.value);
 	}
 	XmTextSetString(channel->d[i].w,tmp);
 	break;
-    case DBF_CHAR   :  
+    case DBF_CHAR   :
+	channel->data.L.value=(long)(unsigned char)channel->data.L.value;
     case DBF_INT    :
     case DBF_LONG   : 
 	sprintf(tmp,"%d",channel->data.L.value);

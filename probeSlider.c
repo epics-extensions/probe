@@ -57,9 +57,12 @@ void sliderCallback(
 	xerrmsg("sliderCallback: Unexpected enum type.\n");
 	return;
     case DBF_CHAR   : 
+	ch->data.L.value = (long)(unsigned char)((long)call_data->value +
+	  ch->adjust.slider.info.L.ctr);
+	break;
     case DBF_INT    : 
     case DBF_LONG   : 
-	ch->data.L.value = (long) call_data->value  + ch->adjust.slider.info.L.ctr;
+	ch->data.L.value = (long)call_data->value  + ch->adjust.slider.info.L.ctr;
 	break;
     case DBF_FLOAT  : 
     case DBF_DOUBLE :
@@ -96,6 +99,7 @@ int calculateSliderMaxMin(atom *ch)
 	xerrmsg("calculateSliderMaxMin: Unexpected enum type.\n");
 	return -1;
     case DBF_CHAR   : 
+	ch->data.L.value=(long)(unsigned char)ch->data.L.value;
     case DBF_INT    : 
     case DBF_LONG   :
       /* Make sure the number won't overflow */
@@ -144,7 +148,7 @@ int calculateSliderMaxMin(atom *ch)
 	  (((long) INT_MIN - ch->data.L.value) > (long) LSR)) {
             info->L.lopr = INT_MIN;
             info->L.hopr = INT_MIN + SLR;
-            info->L.ctr = INT_MIN +HSR;
+            info->L.ctr = INT_MIN + HSR;
             info->L.size = (int) ((info->L.max - info->L.min)/10);
             break;
         }                 
@@ -261,7 +265,8 @@ void updateSlider(atom *ch)
     case DBF_ENUM   : 
 	xerrmsg("updateSlider: Unexpected enum type.\n");
 	break;
-    case DBF_CHAR   : 
+    case DBF_CHAR   :
+	ch->data.L.value=(long)(unsigned char)ch->data.L.value;
     case DBF_INT    : 
     case DBF_LONG   : 
         if ((ch->data.L.value > info->L.hopr) 
