@@ -2,7 +2,10 @@
 # $Id$
 #
 # $Log$
-# Revision 1.2  1994/09/21 22:20:35  jba
+# Revision 1.3  1994/10/25 15:52:13  winans
+# Changed the SRCS macro to SRCS.c and SRCS.cc
+#
+# Revision 1.2  1994/09/21  22:20:35  jba
 # New definitions in CONFIG* files
 #
 # Revision 1.1  1994/09/14  21:42:00  jba
@@ -22,7 +25,7 @@ USR_CFLAGS = -I$(MOTIF)/include -I$(X11_INC)
 USR_LDFLAGS = -L$(EPICS_EXTENSIONS_LIB) -L$(MOTIF)/lib -L$(X11_LIB)
 USR_LDLIBS = -lca -lCom -lUnix -lXm -lXt -lX11 -lm
 
-SRCS = \
+SRCS.c = \
 	../probeAdjust.c\
 	../probeButtons.c\
 	../probeCa.c\
