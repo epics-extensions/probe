@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
     char *pvname=(char *)0;
 
   /* WIN32 initialization */
-#ifdef WIN32	
+#ifdef WIN32
     HCLXmInit();
 #if 0
     fprintf(stderr,"Probe: (1/4) Test fprintf to stderr\n");
@@ -98,6 +98,10 @@ int main(int argc, char *argv[])
     toplevel = XtAppInitialize(&app, "Probe", NULL, 0, &argc, argv,
       fallbackResources, NULL, 0);
     display=XtDisplay(toplevel);
+    if(display == NULL) {
+	XtWarning("Probe initialization: Cannot open display");
+	exit(-1);
+    }
 
 #ifdef DEBUG
     XSynchronize(display,TRUE);
