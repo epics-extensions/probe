@@ -1,0 +1,330 @@
+#include <X11/Intrinsic.h>
+#include <X11/StringDefs.h>
+#include <Xm/Xm.h>
+#include <Xm/Label.h>
+#include <Xm/RowColumn.h>
+#include <Xm/PushB.h>
+#include <Xm/ToggleB.h>
+#include <Xm/PanedW.h>
+
+/*	
+ *       System includes for CA		
+ */
+
+#include <cadef.h>
+#include <alarm.h>
+
+#include "probe.h"
+
+
+/*
+ *          data structure for format
+ */
+
+  char       *buttonsLabels[] = { 
+                 "0",
+                 "1",
+                 "2",
+                 "3",
+                 "4",
+                 "5",
+                 "6",
+                 "7",
+                 "8",
+                 "9",
+                 "10",
+                 "11",
+                 "12",
+                 "13",
+                 "14",
+                 "15" };
+
+  char       *eFButtonsLabels[] = {
+                "%f format",
+                "%e format"
+             };
+  
+  char       infoFormatStr[255];
+
+
+/*
+ *          data structure for CA
+ */
+
+extern int changed;
+
+
+/*
+ *          data structure for info
+ */
+
+extern short infoUp;;
+
+/*
+ *          data structure for hist
+ */
+extern short histUp;
+
+/*
+ *          X's stuff
+ */
+
+extern XmFontList fontList;
+extern XFontStruct *font;
+extern XmFontList fontList1;
+extern XFontStruct *font1;
+
+void initFormat(channel)
+atom *channel;
+{
+  channel->format.defaultDecimalPlaces = DEFAULT_DECIMAL_PLACES;
+  channel->format.defaultWidth = DEFAULT_WIDTH;
+  channel->format.defaultFormat = DEFAULT_FORMAT;
+  channel->format.defaultUnits[0] = 0;
+  strcpy(channel->format.str,DEFAULT_FORMAT_STR);
+  strcpy(channel->format.str1,DEFAULT_FORMAT_STR);
+}
+
+void setChannelDefaults(channel) 
+   atom *channel;
+{
+   int i = 0;
+   int j = 0;
+
+   while (channel->format.defaultUnits[i] = channel->info.data.D.units[j++]) {
+     switch (channel->format.defaultUnits[i]) {
+       case '%' : 
+          i++; channel->format.defaultUnits[i] = '%';
+          break;
+       case '\\' : 
+          i++; channel->format.defaultUnits[i] = '\\';
+          break;
+       default :
+          break;
+     }
+     i++;
+   }
+   if ((ca_field_type(channel->chId) == DBF_DOUBLE) ||
+       (ca_field_type(channel->chId) == DBF_FLOAT)) {
+     channel->format.defaultDecimalPlaces = channel->info.data.D.precision;
+   }
+}
+     
+
+void makeInfoFormatStr(channel) 
+atom  *channel;
+{
+   char str[81];
+   char str1[81];
+
+   sprintf(str,"%%-%d.%d%c",channel->format.defaultWidth,
+           channel->format.defaultDecimalPlaces,channel->format.defaultFormat);
+   sprintf(str1,"%%.%d%c",channel->format.defaultDecimalPlaces,
+                          channel->format.defaultFormat);
+
+   sprintf(channel->info.formatStr,"precision = %%-5d  RISC_pad0 = %%d\n");
+   sprintf(channel->info.formatStr,"%sunits     = %%s\n\n",channel->info.formatStr);
+   sprintf(channel->info.formatStr,"%sHOPR = %s  LOPR = %s\n", 
+                         channel->info.formatStr, str, str1);
+   sprintf(channel->info.formatStr,"%sDRVH = %s  DRVL = %s\n\n", 
+                         channel->info.formatStr, str, str1);
+   sprintf(channel->info.formatStr,"%sHIHI = %s  LOLO = %s\n", 
+                         channel->info.formatStr, str, str1);
+   sprintf(channel->info.formatStr,"%sHIGH = %s  LOW  = %s", 
+                         channel->info.formatStr, str, str1);  
+}
+
+void makeHistFormatStr(channel)
+atom *channel;
+{
+   char str[81];
+
+   sprintf(str,"%%-%d.%d%c",channel->format.defaultWidth,
+           channel->format.defaultDecimalPlaces,channel->format.defaultFormat);
+
+   sprintf(channel->hist.formatStr,"Start Time - %%s\n\nMax = %s - %%s\nMin = %s - %%s\n\n",
+                          str,str);
+}
+
+void makeDataFormatStr(channel)
+atom *channel;
+{
+  sprintf(channel->format.str,"%%.%d%c %s",
+          channel->format.defaultDecimalPlaces,
+          channel->format.defaultFormat,channel->format.defaultUnits);
+  sprintf(channel->format.str1,"%%.%d%c",
+          channel->format.defaultDecimalPlaces,
+          channel->format.defaultFormat);
+
+}
+
+void updateFormat(channel,dummy)
+atom *channel;
+int dummy;
+{
+  int n, i;
+  Arg wargs[5];
+  if (channel->upMask & FORMAT_UP) {
+    for (i=0;i<16;i++) {
+      n = 0;
+      if (i == channel->format.defaultDecimalPlaces) {
+        XtSetArg(wargs[n],XmNset,TRUE); n++;
+      } else {
+        XtSetArg(wargs[n],XmNset,FALSE); n++;
+      }
+      XtSetValues(channel->format.toggleButtons[i],wargs,n);
+    }
+    channel->updateMask &= ~UPDATE_FORMAT;
+  }
+}  
+  
+ 
+void formatCancelCallback(w, channel, call_data) 
+   Widget               w; 
+   atom                 *channel;
+   XmAnyCallbackStruct  *call_data; 
+{
+  XtUnmanageChild(channel->format.dialog);
+  XtDestroyWidget(channel->format.dialog); 
+  channel->format.dialog = NULL;
+  channel->upMask &= ~FORMAT_UP; 
+  channel->d[FORMAT].w = NULL;
+  channel->d[FORMAT].proc = NULL;
+}
+
+void formatDialogCallback(w, channel, call_data) 
+   Widget                       w; 
+   atom                         *channel;
+   XmToggleButtonCallbackStruct *call_data; 
+{
+   char str[10];
+   int n, Id;
+   Arg        wargs[5];
+
+   if (!call_data->set) return;
+   n = 0;
+   Id = -1;
+   while (n<2) {
+     if (w == channel->format.eFButtons[n]) Id = n;
+     n++;
+   }
+   if (Id == 0) {
+       channel->format.defaultFormat = 'f';
+   } else if (Id == 1) {
+       channel->format.defaultFormat = 'e';
+   } else {
+       n = 0;
+       Id = -1;
+       while (n<16) {
+         if (channel->format.toggleButtons[n] == w) {
+           channel->format.defaultDecimalPlaces = n;
+           Id = n;
+         }
+         n++;
+       }
+   }
+   if (Id != -1) {
+     makeDataFormatStr();
+     makeHistFormatStr();
+     makeInfoFormatStr();
+     channel->updateMask |= UPDATE_DISPLAY1 | UPDATE_HIST | UPDATE_INFO;
+  }
+  if (channel->updateMask != NO_UPDATE) 
+    updateDisplay(channel);
+}
+
+
+void formatCallback(w, channel, call_data)
+   Widget                w;
+   atom                  *channel;
+   XmAnyCallbackStruct   *call_data;
+{
+  int        n,i;
+  Arg        wargs[5];
+  XmString   xmstr;
+  Widget     formatPanel;
+  Widget     decimalPlacesLabel, decimalPlacesPanel;
+  Widget     radioBox1,radioBox2;
+  Widget     cancel;
+
+  if (channel->upMask & FORMAT_UP) return;
+  /*
+   * Create the message dialog to display the help.
+   */
+   n = 0;
+   if (font) {
+     XtSetArg(wargs[n], XmNtextFontList, fontList); n++;
+   }
+   XtSetArg(wargs[n], XmNautoUnmanage, FALSE); n++;
+   channel->format.dialog = (Widget) XmCreateBulletinBoardDialog(w,
+                                           "Format", wargs, n);
+   /*
+    * Create a XmPanedWindow widget to hold everything.
+    */
+   formatPanel = XtCreateManagedWidget("panel", 
+                                 xmPanedWindowWidgetClass,
+                                 channel->format.dialog, NULL, 0);
+   n = 0;
+   decimalPlacesPanel = XtCreateManagedWidget("decimalPlacesPanel",
+                                               xmRowColumnWidgetClass,
+                                               formatPanel,wargs,n);
+   n = 0;
+   decimalPlacesLabel = XtCreateManagedWidget("DECIMAL PLACES", 
+                                               xmLabelWidgetClass,
+                                               decimalPlacesPanel, wargs, n);
+   n = 0;
+   XtSetArg(wargs[n], XmNentryClass, xmToggleButtonWidgetClass); n++;
+   XtSetArg(wargs[n], XmNnumColumns, 4); n++;
+   radioBox1 = XmCreateRadioBox(decimalPlacesPanel, "format1", wargs, n);
+   n = 0;
+   XtSetArg(wargs[n], XmNentryClass, xmToggleButtonWidgetClass); n++;
+   XtSetArg(wargs[n], XmNradioAlwaysOne, TRUE); n++;
+   radioBox2 = XmCreateRadioBox(formatPanel, "format2", wargs, n);
+
+   for (i=0;i<16;i++) {
+     n = 0;
+     if (i == channel->format.defaultDecimalPlaces) {
+        XtSetArg(wargs[n],XmNset,TRUE); n++;
+     }
+     channel->format.toggleButtons[i] = XmCreateToggleButton(radioBox1,
+                                         buttonsLabels[i],wargs,n);
+     XtAddCallback(channel->format.toggleButtons[i], 
+             XmNvalueChangedCallback,formatDialogCallback,channel);
+   }
+   for (i=0;i<2;i++) {
+     n = 0;
+     if (((i == 0) && (channel->format.defaultFormat == 'f'))
+          || ((i == 1) && (channel->format.defaultFormat == 'e'))) {
+        XtSetArg(wargs[n],XmNset,TRUE); n++;
+     }
+     channel->format.eFButtons[i] = XmCreateToggleButton(radioBox2,
+                                        eFButtonsLabels[i],wargs,n);
+     XtAddCallback(channel->format.eFButtons[i],
+             XmNvalueChangedCallback,formatDialogCallback,channel);
+   }
+
+   /* 
+    *  Create 'cancel' button
+    */
+
+   n = 0;
+   if (font1) {
+     XtSetArg(wargs[n],  XmNfontList, fontList1); n++;
+   }
+   cancel = XtCreateManagedWidget("Cancel", 
+                               xmPushButtonWidgetClass,
+                               formatPanel, wargs, n);
+   XtAddCallback(cancel, XmNactivateCallback,
+                 formatCancelCallback,channel);
+
+   channel->upMask |= FORMAT_UP;
+   channel->d[FORMAT].w = NULL;
+   channel->d[FORMAT].proc = updateFormat;
+
+   XtManageChildren(channel->format.toggleButtons,16);  
+   XtManageChildren(channel->format.eFButtons,2);  
+   XtManageChild(radioBox1);
+   XtManageChild(radioBox2);
+   XtManageChild(channel->format.dialog);
+}
+
