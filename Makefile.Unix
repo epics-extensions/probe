@@ -14,37 +14,37 @@ CC = purify -first-only -chain-length=25 $(C_$(CMPLR))
 #CC = purify -first-only -chain-length=25 -mail-to-user=evans $(C_$(CMPLR))
 endif
 
-DEPLIBS = $(EPICS_EXTENSIONS_LIB)/libUnix.a \
-           $(EPICS_BASE_LIB)/libca.a \
-           $(EPICS_BASE_LIB)/libCom.a
+DEPLIBS += $(EPICS_BASE_LIB)/libca.a 
+DEPLIBS += $(EPICS_BASE_LIB)/libCom.a
 
 USR_CFLAGS = -g -I$(MOTIF_INC) -I$(X11_INC)
 USR_LDFLAGS = -L$(INSTALL_LIB) -L$(EPICS_EXTENSIONS_LIB) -L$(MOTIF_LIB) -L$(X11_LIB)
-USR_LDLIBS = -lca -lCom -lUnix -lXm -lXt -lX11 -lm
+USR_LDLIBS = -lca -lCom -lXm -lXt -lX11 -lm
 
-SRCS.c = \
-	../probeAdjust.c\
-	../probeButtons.c\
-	../probeCa.c\
-	../probeFormat.c\
-	../probeHistory.c\
-	../probeInfo.c\
-	../probeInit.c\
-	../probeSlider.c\
-	../probeUpdate.c\
-	../probe_main.c
+SRCS.c += ../probeAdjust.c
+SRCS.c += ../probeButtons.c
+SRCS.c += ../probeCa.c
+SRCS.c += ../probeFormat.c
+SRCS.c += ../probeHistory.c
+SRCS.c += ../probeInfo.c
+SRCS.c += ../probeInit.c
+SRCS.c += ../probeSlider.c
+SRCS.c += ../probeUpdate.c
+SRCS.c += ../probe_main.
+SRCS.c += ../probe_main.
+SRCS.c += ../productDescriptionShell.c
 
-OBJS = \
-	probeAdjust.o\
-	probeButtons.o\
-	probeCa.o\
-	probeFormat.o\
-	probeHistory.o\
-	probeInfo.o\
-	probeInit.o\
-	probeSlider.o\
-	probeUpdate.o\
-	probe_main.o
+OBJS +=	probeAdjust.o
+OBJS +=	probeButtons.o
+OBJS +=	probeCa.o
+OBJS +=	probeFormat.o
+OBJS +=	probeHistory.o
+OBJS +=	probeInfo.o
+OBJS +=	probeInit.o
+OBJS +=	probeSlider.o
+OBJS +=	probeUpdate.o
+OBJS +=	probe_main.o
+OBJS +=	productDescriptionShell.o
 
 PROD = probe
 
@@ -57,6 +57,9 @@ probe: $(OBJS) $(DEPLIBS)
 # $Id$
 #
 # $Log$
+# Revision 1.11  1998/07/15 15:21:40  evans
+# Added new files and moved ProductDescriptionShell.c from former libUnix.
+#
 # Revision 1.10  1998/06/08 15:52:39  evans
 # Added better exception handler.  Minor other changes.
 #
