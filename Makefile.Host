@@ -3,9 +3,15 @@
 TOP = ../../..
 include $(TOP)/config/CONFIG_EXTENSIONS
 
+# Optimization
+ifdef WIN32
+#HOST_OPT = YES
+else
 #HOST_OPT = NO
-#STATIC_BUILD = YES 
+endif
+
 CMPLR = STRICT
+#STATIC_BUILD = YES 
 #PURIFY = YES
 
 ifeq ($(PURIFY),YES)
