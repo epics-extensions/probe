@@ -6,7 +6,7 @@
 * This file is distributed subject to a Software License Agreement found
 * in the file LICENSE that is included with this distribution. 
 \*************************************************************************/
-#define DEBUG_WINSOCK 0
+
 #define DEBUG_TYPE 0
 
 #include <X11/Intrinsic.h>
@@ -107,7 +107,7 @@ void probeCAException(struct exception_handler_args args)
       args.pFile?args.lineNo:0);
 }
 
-int probeCATaskInit()
+int probeCATaskInit(atom *channel)
 {
   /* CA Stuff */
     int stat;
@@ -130,9 +130,9 @@ int probeCATaskInit()
     SEVCHK(stat,"probeCATaskInit: ca_add_exception_event failed!");
     if (stat != ECA_NORMAL) return 1;
 
-    stat = ca_pend_io(ca_pend_io_time);
-    SEVCHK(stat,"probeCATaskInit: ca_pend_io failed!");
-    if (stat != ECA_NORMAL) return 1;
+  /* Start a timer that calls ca_poll and does updates when there is a
+   * channel */
+    updateMonitor((XtPointer)channel,&monitorId);
 
     return 0;
 }
@@ -148,10 +148,6 @@ int connectChannel(char name[], atom *channel)
     int stat;
 
     channel->upMask &= ~MONITOR_UP;
-    if (monitorId) {
-	XtRemoveTimeOut(monitorId);
-	monitorId = (XtIntervalId)NULL;
-    }    
 
     if (channel->monitored) {
 	stat = ca_clear_event(channel->eventId);
@@ -422,10 +418,6 @@ void stopMonitor(Widget  w,XtPointer clientData,
 	}      
 	channel->monitored = FALSE;
     }
-    if (monitorId) {
-	XtRemoveTimeOut(monitorId);
-	monitorId = (XtIntervalId)NULL;
-    }
     if (channel->upMask & ADJUST_UP)
       adjustCancelCallback(NULL,(XtPointer)channel,NULL);
     channel->upMask &= ~MONITOR_UP;
@@ -451,6 +443,12 @@ void quitMonitor(Widget w, XtPointer clientData,
 {
     atom *channel = (atom *) clientData;
     int stat;
+
+  /* Remove the timer */
+    if (monitorId) {
+	XtRemoveTimeOut(monitorId);
+	monitorId = (XtIntervalId)NULL;
+    }    
     
     if(channel) {
 	if (channel->monitored) {
@@ -462,11 +460,7 @@ void quitMonitor(Widget w, XtPointer clientData,
 	}
 	
 	channel->upMask &= ~MONITOR_UP;
-	if (monitorId) {
-	    XtRemoveTimeOut(monitorId);
-	    monitorId = (XtIntervalId)NULL;
-	}
-	
+
 	if (channel->connected) {
 	    stat = ca_clear_channel(channel->chId);
 	    SEVCHK(stat,"quitMonitor: ca_clear_channel failed!");
@@ -529,9 +523,6 @@ void printData(struct event_handler_args arg)
     atom *channel = (atom *) arg.usr;
     char *tmp = (char *) &(channel->data);
 
-#if DEBUG_WINSOCK
-	fprintf(stderr,"printData: \n");
-#endif	
   /*
    * Ask Unix for the time.
    */
@@ -545,37 +536,22 @@ void printData(struct event_handler_args arg)
 	
 void updateMonitor(XtPointer clientData, XtIntervalId *id)
 {
-    atom *channel = (atom *) clientData;
-    long     next_second = 5;
-    int stat;
+    atom *channel = (atom *)clientData;
+    long next_second = 100; /* ms */
 
-#if DEBUG_WINSOCK
-    fprintf(stderr,"updateMonitor: 1\n");
-#endif	
+    ca_poll();
 
-    stat = ca_poll();
-  /* KE: ca_pend_event should not return ECA_TIMEOUT */
-    if ((stat != ECA_NORMAL) && (stat != ECA_TIMEOUT)) {
-	xerrmsg("upDateMonitor: ca_pend_event failed. Error(%d)\n",ip);
-    }
-
-#if DEBUG_WINSOCK
-    fprintf(stderr,"updateMonitor: 2\n");
-#endif	
-    
-    if ((channel->upMask & MONITOR_UP) != 0) {
-	
-#if DEBUG_WINSOCK
-	fprintf(stderr,"updateMonitor: 3\n");
-#endif	
-	
-	if (channel->changed) {
-	    updateHistoryInfo(channel);
-	    channel->changed = FALSE;
+  /* Do channel changes */
+    if(channel) {
+	if ((channel->upMask & MONITOR_UP) != 0) {
+	    if (channel->changed) {
+		updateHistoryInfo(channel);
+		channel->changed = FALSE;
+	    }
 	}
+	if (channel->updateMask != NO_UPDATE) updateDisplay(channel);
     }
-    if (channel->updateMask != NO_UPDATE) updateDisplay(channel);         
 
-  /* Keep the channel going */
-    XtAppAddTimeOut(app, next_second, updateMonitor, channel);
+  /* Reset the timer */
+    monitorId = XtAppAddTimeOut(app, next_second, updateMonitor, channel);
 }

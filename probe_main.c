@@ -303,8 +303,8 @@ int main(int argc, char *argv[])
     XtAddCallback(option,XmNactivateCallback,formatCallback,&channel);
 
 
-    if (probeCATaskInit()) 
-      exit(1);
+  /* Initialize CA and start the ca_poll timer */
+    if (probeCATaskInit(&channel))  exit(1);
 
   /* Realize */
     XtRealizeWidget(toplevel);

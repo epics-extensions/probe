@@ -288,14 +288,14 @@ void adjustCancelCallback(Widget w, XtPointer clientData,
   XtPointer callbackStruct);
 void textAdjustCallback(Widget w, XtPointer clientData,
   XtPointer callbackData);
-void updateAdjustPanel(atom *ch);
+void updateAdjustPanel(atom *channel);
 void textAdjustCallback(Widget w, XtPointer clientData,
   XtPointer callbackData);
 
 /* probeButtons.c */
-void createButtons(atom *ch) ;
-void destroyButtons(atom *ch);
-void updateButtons(atom *ch, int dummy);
+void createButtons(atom *channel) ;
+void destroyButtons(atom *channel);
+void updateButtons(atom *channel, int dummy);
 
 /* probeCa.c */
 int channelIsAlreadyConnected(char name[], atom* channel);
@@ -308,8 +308,8 @@ void helpMonitor(Widget w, XtPointer clientData,
 void initChan(char *name, atom *channel);
 void printData(struct event_handler_args arg);
 void probeCAException(struct exception_handler_args arg);
-void probeCASetValue(atom *ch);
-int probeCATaskInit();
+void probeCASetValue(atom *channel);
+int probeCATaskInit(atom *channel);
 void quitMonitor(Widget w, XtPointer clientData,
   XtPointer callbackStrut);
 void startMonitor(Widget w, XtPointer clientData,
@@ -355,10 +355,10 @@ void clearSlider(Slider *s);
 void initChannel(atom *channel);
 
 /* probeSlider.c */
-int calculateSliderMaxMin(atom *ch);
-int createSlider(atom *ch);
-void destroySlider(atom *ch);
-void updateSlider(atom *ch);
+int calculateSliderMaxMin(atom *channel);
+int createSlider(atom *channel);
+void destroySlider(atom *channel);
+void updateSlider(atom *channel);
 
 /* probeUpdate.c */
 void updateDataDisplay(atom *channel,unsigned int i);
