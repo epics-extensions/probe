@@ -224,9 +224,9 @@ void formatDialogCallback(w, channel, call_data)
        }
    }
    if (Id != -1) {
-     makeDataFormatStr();
-     makeHistFormatStr();
-     makeInfoFormatStr();
+     makeDataFormatStr(channel);
+     makeHistFormatStr(channel);
+     makeInfoFormatStr(channel);
      channel->updateMask |= UPDATE_DISPLAY1 | UPDATE_HIST | UPDATE_INFO;
   }
   if (channel->updateMask != NO_UPDATE) 
