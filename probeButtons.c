@@ -1,3 +1,9 @@
+/*
+ * .01  vong     022696     fix the problem in destroyButtons.
+ *                          use the MAX_ADJUST_BUTTONS in the
+ *                          clean up for loop instead of the 
+ *                          ch->info.data.E.no_str.
+ */
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <Xm/Xm.h>
@@ -98,7 +104,7 @@ void destroyButtons(atom *ch)
   XtUnmanageChild(b->panel);
   XtDestroyWidget(b->panel);
   b->panel = NULL;
-  for (i=0; i<ch->info.data.E.no_str; i++)
+  for (i=0; i<MAX_ADJUST_BUTTONS; i++)
     b->buttons[i] = NULL;
   b->buttonsSelected = -1;
   ch->d[BUTTON].w = NULL;

@@ -13,8 +13,8 @@
 
 #define PROBE_VERSION       1
 #define PROBE_REVISION      0
-#define PROBE_UPDATE_LEVEL  4
-#define PROBE_VERSION_STRING "PROBE VERSION 1.0.4"
+#define PROBE_UPDATE_LEVEL  5
+#define PROBE_VERSION_STRING "PROBE VERSION 1.0.5"
 
 /*	
  *       System includes for CA		
@@ -156,6 +156,11 @@ main(int argc, char *argv[])
 
   toplevel = XtVaAppInitialize(&app, "Probe", NULL, 0, 
                           &argc, argv, NULL, NULL);
+
+#ifdef DEBUG
+  XSynchronize(XtDisplay(toplevel),TRUE);
+  fprintf(stderr,"\nRunning in SYNCHRONOUS mode!!");
+#endif
 
   createFonts();
   initChannel(&channel);
