@@ -13,8 +13,8 @@
 
 #define PROBE_VERSION       1
 #define PROBE_REVISION      0
-#define PROBE_UPDATE_LEVEL  0
-#define PROBE_VERSION_STRING "PROBE VERSION 1.0.2"
+#define PROBE_UPDATE_LEVEL  3
+#define PROBE_VERSION_STRING "PROBE VERSION 1.0.3"
 
 /*	
  *       System includes for CA		

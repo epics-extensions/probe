@@ -104,7 +104,14 @@ void setChannelDefaults(atom *channel)
    }
    if ((ca_field_type(channel->chId) == DBF_DOUBLE) ||
        (ca_field_type(channel->chId) == DBF_FLOAT)) {
-     channel->format.defaultDecimalPlaces = channel->info.data.D.precision;
+     if (channel->info.data.D.precision > 15) {
+       channel->format.defaultDecimalPlaces = 15;
+     } else
+     if (channel->info.data.D.precision < 0) {
+       channel->format.defaultDecimalPlaces = 0;
+     } else {
+       channel->format.defaultDecimalPlaces = channel->info.data.D.precision;
+     }
    }
 }
      
