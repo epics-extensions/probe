@@ -2,7 +2,10 @@
 # $Id$
 #
 # $Log$
-# Revision 1.1  1994/09/14 21:42:00  jba
+# Revision 1.2  1994/09/21 22:20:35  jba
+# New definitions in CONFIG* files
+#
+# Revision 1.1  1994/09/14  21:42:00  jba
 # Modified for new CONFIG files
 #
 #
@@ -11,12 +14,12 @@ EPICS = ../../../..
 include Target.include
 include $(EPICS)/config/CONFIG_EXTENSIONS
 
-DEP_LIBS = $(EPICS_EXTENSIONS_LIB)/$(T_A)/libUnix.a \
-           $(EPICS_BASE_LIB)/$(T_A)/libca.a \
-           $(EPICS_BASE_LIB)/$(T_A)/libCom.a
+DEPLIBS = $(EPICS_EXTENSIONS_LIB)/libUnix.a \
+           $(EPICS_BASE_LIB)/libca.a \
+           $(EPICS_BASE_LIB)/libCom.a
 
 USR_CFLAGS = -I$(MOTIF)/include -I$(X11_INC)
-USR_LDFLAGS = -L$(EPICS_EXTENSIONS_LIB)/$(T_A) -L$(MOTIF)/lib -L$(X11_LIB)
+USR_LDFLAGS = -L$(EPICS_EXTENSIONS_LIB) -L$(MOTIF)/lib -L$(X11_LIB)
 USR_LDLIBS = -lca -lCom -lUnix -lXm -lXt -lX11 -lm
 
 SRCS = \
@@ -51,6 +54,6 @@ PROD = probe
 
 include $(EPICS)/config/RULES.Unix
 
-probe: $(OBJS) $(DEP_LIBS)
+probe: $(OBJS) $(DEPLIBS)
 	$(LINK.c) -o $@ $(OBJS) $(LDLIBS)
 
