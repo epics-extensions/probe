@@ -1,4 +1,5 @@
 #define DEBUG_WINSOCK 0
+#define DEBUG_TYPE 0
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -199,7 +200,9 @@ int getData(atom *channel)
 	time(&channel->currentTime);
 	if (stat != ECA_NORMAL) goto getDataErrorHandler;
          
+#if DEBUG_TYPE
 	errmsg("String type.\n");
+#endif	
 	break;
 
     case DBF_ENUM: 
@@ -216,7 +219,9 @@ int getData(atom *channel)
 	time(&channel->currentTime);
 	if (stat != ECA_NORMAL) goto getDataErrorHandler;
 
+#if DEBUG_TYPE
 	errmsg("Enum type.\n");
+#endif	
 	break;
 
     case DBF_CHAR: 
@@ -237,7 +242,9 @@ int getData(atom *channel)
 	time(&channel->currentTime);
 	if (stat != ECA_NORMAL) goto getDataErrorHandler;
 
+#if DEBUG_TYPE
 	errmsg("Long type.\n");
+#endif	
 	break;
 
     case DBF_FLOAT: 
@@ -258,7 +265,9 @@ int getData(atom *channel)
 	if (stat != ECA_NORMAL) goto getDataErrorHandler;
 	channel->updateMask |= UPDATE_FORMAT;
 
+#if DEBUG_TYPE
 	errmsg("Double type.\n");
+#endif	
 	break;
     default:
 	xerrmsg("getData: Unknown channel type.\n");
