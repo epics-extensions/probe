@@ -34,11 +34,13 @@ void updateTextDisplay();
 void adjustOptionCallback();
 
 
-void adjustCancelCallback(w, channel, call_data) 
-   Widget              w; 
-   atom                *channel;
-   XmAnyCallbackStruct *call_data; 
+void adjustCancelCallback(
+   Widget    w, 
+   XtPointer clientData,
+   XtPointer callbackStruct)
 {
+   atom                *channel = (atom *) clientData;
+   XmAnyCallbackStruct *call_data = (XmAnyCallbackStruct *) callbackStruct; 
    XtUnmanageChild(channel->adjust.dialog);
    XtDestroyWidget(channel->adjust.dialog);
    channel->adjust.upMask = ALL_DOWN;
@@ -55,8 +57,7 @@ void adjustCancelCallback(w, channel, call_data)
 }
 
 
-void updateAdjustPanel(ch)
-atom   *ch;
+void updateAdjustPanel(atom *ch)
 {
   int i, n;
   Arg wargs[5];
@@ -80,8 +81,6 @@ atom   *ch;
           destroySlider(ch);
         if (ch->adjust.upMask & ADJUST_BUTTONS_UP)
           destroyButtons(ch);
-        if (ch->adjust.upMask & ADJUST_DIALS_UP)
-          probeDisableDial(ch);
       }
       break;
     case DBF_ENUM :
@@ -92,8 +91,6 @@ atom   *ch;
           destroySlider(ch);
         if (ch->adjust.upMask & ADJUST_BUTTONS_UP)
           destroyButtons(ch);
-        if (ch->adjust.upMask & ADJUST_DIALS_UP)
-          probeDisableDial(ch->adjust.dials.buttonsSelected);
       }
       createButtons(ch);
       XtManageChild(ch->adjust.panel);
@@ -112,8 +109,6 @@ atom   *ch;
           destroyButtons(ch);
       }
       createSlider(ch);
-      if (ch->adjust.upMask & ADJUST_DIALS_UP)
-        probeEnableDial(ch->adjust.dials.buttonsSelected);
       XtManageChild(ch->adjust.panel);
       break;
     default         :
@@ -124,14 +119,17 @@ atom   *ch;
   ch->updateMask &= ~UPDATE_ADJUST;
 }
 
-void textAdjustCallback(w, channel, callData)
-   Widget               w;
-   atom                 *channel;
-   XmAnyCallbackStruct  *callData;
+void textAdjustCallback(
+   Widget               w,
+   XtPointer            clientData,
+   XtPointer            callbackData)
 {
   int n;
   long outputL;
   double outputD;
+
+  atom *channel = (atom *) clientData;
+  XmAnyCallbackStruct  *callData = (XmAnyCallbackStruct  *) callbackData;
   
   if (channel->monitored == FALSE) return;
 
@@ -189,18 +187,19 @@ void textAdjustCallback(w, channel, callData)
 }
 
 
-void adjustCallback(w, channel, call_data)
-   Widget               w;
-   atom                 *channel;
-   XmAnyCallbackStruct  *call_data;
+void adjustCallback(
+   Widget    w,
+   XtPointer clientData,
+   XtPointer callbackStruct)
 {
+  atom       *channel = (atom *) clientData;
   int        n,i;
   Arg        wargs[5];
   XmString   xmstr;
   Widget     formatPanel;
   Widget     separator1;
   Widget     separator2;
-  Widget     okButton, option, cancel;
+  Widget     okButton, cancel;
   Widget     buttonsHolder;
 
   if (channel->upMask & ADJUST_UP) return;
@@ -298,22 +297,6 @@ void adjustCallback(w, channel, call_data)
                                xmPushButtonWidgetClass,
                                buttonsHolder, wargs, n);
    XtAddCallback(okButton, XmNactivateCallback, textAdjustCallback, channel);
-
-   /* 
-    *  Create 'option' button
-    */
-
-   n = 0;
-   if (font) {
-     XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-   }
-   option = XtCreateManagedWidget("Option", 
-                               xmPushButtonWidgetClass,
-                               buttonsHolder, wargs, n);
-/*
-   XtAddCallback(option, XmNactivateCallback,adjustOptionCallback,channel);
-*/
-
 
    /* 
     *  Create 'cancel' button

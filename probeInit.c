@@ -11,8 +11,7 @@
 
 #include "probe.h"
 
-void clearButtons(b)
-Buttons *b;
+void clearButtons(Buttons *b)
 {
   int i = 0;
 
@@ -23,8 +22,7 @@ Buttons *b;
   b->buttonsSelected = -1;
 }
 
-void clearSlider(s)
-Slider *s;
+void clearSlider(Slider *s)
 {
   s->panel = NULL;
   s->slider = NULL;
@@ -37,15 +35,13 @@ Slider *s;
   s->info.D.scl = 1;
 }
 
-void clearHistData(h)
-histData *h;
+void clearHistData(histData *h)
 {
   h->dialog = NULL;
   h->updateMask = NO_UPDATE;
 }
 
-void clearAdjust(a)
-adjData *a;
+void clearAdjust(adjData *a)
 {
   a->dialog = NULL;
   a->panel = NULL;
@@ -57,8 +53,7 @@ adjData *a;
   a->updateMask = NO_UPDATE;
 }
 
-int initChannel(channel)
-atom *channel;
+int initChannel(atom *channel)
 {
   int i;
 

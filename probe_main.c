@@ -1,6 +1,4 @@
 #include <stdio.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -16,7 +14,7 @@
 #define PROBE_VERSION       1
 #define PROBE_REVISION      0
 #define PROBE_UPDATE_LEVEL  0
-#define PROBE_VERSION_STRING "PROBE VERSION 1.0.1"
+#define PROBE_VERSION_STRING "PROBE VERSION 1.0.2"
 
 /*	
  *       System includes for CA		
@@ -72,7 +70,7 @@ void    getChan();
 void    helpMonitor();
 void    quitMonitor();
 void    adjustCallback();
-        probeCATaskInit();
+int     probeCATaskInit();
 
 /*
  *      probeHistory.c
@@ -151,9 +149,7 @@ void createFonts() {
 XtAppContext app;
 Widget productDescriptionShell;
 
-main(argc, argv)
-   int      argc;
-   char    *argv[];
+main(int argc, char *argv[])
 {
   int n;
   Arg        wargs[5];
@@ -167,9 +163,12 @@ main(argc, argv)
   /*
    * Create a XmPanedWindow widget to hold everything.
    */
-  panel = XtCreateManagedWidget("panel", 
+  panel = XtVaCreateManagedWidget("panel", 
                                 xmPanedWindowWidgetClass,
-                                toplevel, NULL, 0);
+                                toplevel,
+                                XmNsashWidth, 1,
+                                XmNsashHeight, 1,
+                                NULL);
 
   /*
    * Create a XmRowColumn widget to hold the name and value of
@@ -267,10 +266,10 @@ main(argc, argv)
   if (font) {
     XtSetArg(wargs[n],  XmNfontList, fontList); n++;
   }
-  help = XtCreateManagedWidget("Help", 
+  help = XtCreateManagedWidget("Version", 
                                xmPushButtonWidgetClass,
                                commands, wargs, n);
-  XtAddCallback(help, XmNactivateCallback,helpMonitor,&channel);
+  XtAddCallback(help, XmNactivateCallback,helpMonitor,&productDescriptionShell);
 
   /* 
    *  Create 'quit' button

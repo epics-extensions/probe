@@ -58,7 +58,7 @@ extern int changed;
  *          data structure for info
  */
 
-extern short infoUp;;
+extern short infoUp;
 
 /*
  *          data structure for hist
@@ -74,8 +74,7 @@ extern XFontStruct *font;
 extern XmFontList fontList1;
 extern XFontStruct *font1;
 
-void initFormat(channel)
-atom *channel;
+void initFormat(atom *channel)
 {
   channel->format.defaultDecimalPlaces = DEFAULT_DECIMAL_PLACES;
   channel->format.defaultWidth = DEFAULT_WIDTH;
@@ -85,8 +84,7 @@ atom *channel;
   strcpy(channel->format.str1,DEFAULT_FORMAT_STR);
 }
 
-void setChannelDefaults(channel) 
-   atom *channel;
+void setChannelDefaults(atom *channel) 
 {
    int i = 0;
    int j = 0;
@@ -111,8 +109,7 @@ void setChannelDefaults(channel)
 }
      
 
-void makeInfoFormatStr(channel) 
-atom  *channel;
+void makeInfoFormatStr(atom *channel) 
 {
    char str[81];
    char str1[81];
@@ -134,8 +131,7 @@ atom  *channel;
                          channel->info.formatStr, str, str1);  
 }
 
-void makeHistFormatStr(channel)
-atom *channel;
+void makeHistFormatStr(atom *channel)
 {
    char str[81];
 
@@ -146,8 +142,7 @@ atom *channel;
                           str,str);
 }
 
-void makeDataFormatStr(channel)
-atom *channel;
+void makeDataFormatStr(atom *channel)
 {
   sprintf(channel->format.str,"%%.%d%c %s",
           channel->format.defaultDecimalPlaces,
@@ -158,9 +153,7 @@ atom *channel;
 
 }
 
-void updateFormat(channel,dummy)
-atom *channel;
-int dummy;
+void updateFormat(atom *channel,int dummy)
 {
   int n, i;
   Arg wargs[5];
@@ -179,11 +172,13 @@ int dummy;
 }  
   
  
-void formatCancelCallback(w, channel, call_data) 
-   Widget               w; 
-   atom                 *channel;
-   XmAnyCallbackStruct  *call_data; 
+void formatCancelCallback( 
+   Widget    w, 
+   XtPointer clientData,
+   XtPointer callbackStruct)
 {
+  atom *channel = (atom *) clientData;
+  XmAnyCallbackStruct  *call_data = (XmAnyCallbackStruct  *) callbackStruct;; 
   XtUnmanageChild(channel->format.dialog);
   XtDestroyWidget(channel->format.dialog); 
   channel->format.dialog = NULL;
@@ -192,11 +187,13 @@ void formatCancelCallback(w, channel, call_data)
   channel->d[FORMAT].proc = NULL;
 }
 
-void formatDialogCallback(w, channel, call_data) 
-   Widget                       w; 
-   atom                         *channel;
-   XmToggleButtonCallbackStruct *call_data; 
+void formatDialogCallback(
+   Widget    w, 
+   XtPointer clientData,
+   XtPointer callbackStruct)
 {
+   atom                         *channel = (atom *) clientData;
+   XmToggleButtonCallbackStruct *call_data = (XmToggleButtonCallbackStruct *) callbackStruct; 
    char str[10];
    int n, Id;
    Arg        wargs[5];
@@ -234,11 +231,12 @@ void formatDialogCallback(w, channel, call_data)
 }
 
 
-void formatCallback(w, channel, call_data)
-   Widget                w;
-   atom                  *channel;
-   XmAnyCallbackStruct   *call_data;
+void formatCallback(
+   Widget    w,
+   XtPointer clientData,
+   XtPointer callbackStruct)
 {
+  atom *channel = (atom *) clientData;
   int        n,i;
   Arg        wargs[5];
   XmString   xmstr;
@@ -261,9 +259,12 @@ void formatCallback(w, channel, call_data)
    /*
     * Create a XmPanedWindow widget to hold everything.
     */
-   formatPanel = XtCreateManagedWidget("panel", 
+   formatPanel = XtVaCreateManagedWidget("panel", 
                                  xmPanedWindowWidgetClass,
-                                 channel->format.dialog, NULL, 0);
+                                 channel->format.dialog,
+                                 XmNsashWidth, 1,
+                                 XmNsashHeight, 1,
+                                 NULL);
    n = 0;
    decimalPlacesPanel = XtCreateManagedWidget("decimalPlacesPanel",
                                                xmRowColumnWidgetClass,

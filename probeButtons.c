@@ -45,13 +45,16 @@ char      *stateButtonLabels[] = {
                  "state 15"};
                  
 
-void adjustButtonsCallback(w,ch, callData)
-  Widget    w;
-  atom      *ch;
-  XmToggleButtonCallbackStruct *callData;
+void adjustButtonsCallback(
+  Widget    w,
+  XtPointer clientData,
+  XtPointer callbackData)
 {
   char tmp[20];
   short i;
+
+  atom *ch = (atom *) clientData;
+  XmToggleButtonCallbackStruct *callData = (XmToggleButtonCallbackStruct *) callbackData;
 
   Buttons *b = &(ch->adjust.buttons);
 
@@ -71,25 +74,23 @@ void adjustButtonsCallback(w,ch, callData)
   updateDisplay(ch);  
 }
 
-void updateButtons(ch, dummy)
-  atom   *ch;
-  int    dummy;
+void updateButtons(atom *ch, int dummy)
 {
-  Arg arg;
   Buttons *b = &(ch->adjust.buttons);
 
   if ((ch->adjust.upMask & ADJUST_BUTTONS_UP) == 0) return;
 
   if (b->buttonsSelected == ch->data.E.value) return;
-  XtSetArg(arg,XmNset,FALSE);
-  XtSetValues(b->buttons[b->buttonsSelected],arg,1);
-  XtSetArg(arg,XmNset,TRUE);
-  XtSetValues(b->buttons[ch->data.E.value],arg,1);
+  XtVaSetValues(b->buttons[b->buttonsSelected],
+     XmNset,False,
+     NULL);
+  XtVaSetValues(b->buttons[ch->data.E.value],
+     XmNset,True,
+     NULL);
   b->buttonsSelected = ch->data.E.value;
 }
 
-void destroyButtons(ch)
-  atom   *ch;
+void destroyButtons(atom *ch)
 {
   short i;
   Buttons *b = &(ch->adjust.buttons);
@@ -106,8 +107,7 @@ void destroyButtons(ch)
 }
      
 
-void createButtons(ch) 
-atom *ch;
+void createButtons(atom *ch) 
 {
   short i, n;
   Arg  wargs[5];

@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <alarm.h>
+#include <float.h>
 
 #include "probe.h"
 
@@ -32,11 +33,13 @@ extern XFontStruct *font1;
 #define LSR -1000000
 #define SLR 2000000
 
-void sliderCallback(w, ch, call_data)
-   Widget                 w;
-   atom                   *ch;
-   XmScaleCallbackStruct  *call_data;
+void sliderCallback(
+   Widget     w,
+   XtPointer  clientData,
+   XtPointer  callbackStruct)
 {
+   atom                  *ch = (atom *) clientData;
+   XmScaleCallbackStruct *call_data = (XmScaleCallbackStruct *) callbackStruct;
    char tmp[20];
    int n;
    Arg wargs[5];
@@ -71,8 +74,7 @@ void sliderCallback(w, ch, call_data)
   updateDisplay(ch);
 }
 
-int calculateSliderMaxMin(ch) 
-atom *ch;
+int calculateSliderMaxMin(atom *ch) 
 {
   long factor = 1;
   long deltaL;
@@ -196,18 +198,18 @@ atom *ch;
         }
         /* check for the extreme range */
         if ((ch->data.D.value > 0) && 
-            (((double) MAXDOUBLE - ch->data.D.value) < dMax)) {
-            info->D.hopr = MAXDOUBLE;
-            info->D.lopr = MAXDOUBLE - dRange;
-            info->D.ctr = MAXDOUBLE - dMax;
+            (((double) DBL_MAX - ch->data.D.value) < dMax)) {
+            info->D.hopr = DBL_MAX;
+            info->D.lopr = DBL_MAX - dRange;
+            info->D.ctr = DBL_MAX - dMax;
             info->D.size = (int) ((info->D.max - info->D.min)/10);
             break;
         }
         if ((ch->data.D.value < 0) &&
-            (((double) -MAXDOUBLE - ch->data.D.value) > dMin)) {
-            info->D.lopr = -MAXDOUBLE;
-            info->D.hopr = -MAXDOUBLE + dRange;
-            info->D.ctr = -MAXDOUBLE - dMin;
+            (((double) -DBL_MAX - ch->data.D.value) > dMin)) {
+            info->D.lopr = -DBL_MAX;
+            info->D.hopr = -DBL_MAX + dRange;
+            info->D.ctr = -DBL_MAX - dMin;
             info->D.size = (int) ((info->D.max - info->D.min)/10);
             break;
         }                 
@@ -224,8 +226,7 @@ atom *ch;
    return 0;
 }
 
-void destroySlider(ch)
-  atom   *ch;
+void destroySlider(atom *ch)
 {
   short i;
   Slider *s = &(ch->adjust.slider);
@@ -242,8 +243,7 @@ void destroySlider(ch)
   ch->adjust.upMask &= ~ADJUST_SLIDER_UP;
 }
    
-void updateSlider(ch)
-atom *ch;
+void updateSlider(atom *ch)
 {
   int n, i;
   int tmpI;
@@ -311,8 +311,7 @@ atom *ch;
    }
 }
 
-int createSlider(ch)
-atom *ch;
+int createSlider(atom *ch)
 {
   int n;
   Arg wargs[5];

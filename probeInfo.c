@@ -27,9 +27,7 @@ extern XmFontList fontList1;
 extern XFontStruct *font1;
 
 
-void updateInfo(channel,dummy)
-atom *channel;
-int  dummy;
+void updateInfo(atom *channel,int dummy)
 {
     char     message[512];
     XmString xmstr;
@@ -89,11 +87,12 @@ int  dummy;
     channel->updateMask &= ~UPDATE_INFO;
 }
 
-void infoDialogCallback(w, channel, call_data) 
-   Widget               w; 
-   atom                 *channel;
-   XmAnyCallbackStruct  *call_data; 
+void infoDialogCallback(
+   Widget               w,
+   XtPointer            clientData,
+   XtPointer            callbackData)
 {
+   atom *channel = (atom *) clientData;
    XtUnmanageChild(channel->info.dialog);
    XtDestroyWidget(channel->info.dialog);  
    channel->upMask &= ~INFO_UP;

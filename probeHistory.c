@@ -30,9 +30,7 @@ extern XmFontList fontList1;
 extern XFontStruct *font1;
 
 
-void updateHistory(channel,dummy)
-atom *channel;
-int  dummy;
+void updateHistory(atom *channel, int dummy)
 {
     char     message[256];
     char     format[256];
@@ -135,8 +133,7 @@ int  dummy;
     channel->updateMask &= ~UPDATE_HIST;  
 }
 
-void resetHistory(channel)
-atom *channel;
+void resetHistory(atom *channel)
 {
   if (channel->monitored) {
      channel->hist.startTime = channel->currentTime;
@@ -178,11 +175,12 @@ atom *channel;
   }
 }
 
-void histCancelCallback(w, channel, call_data) 
-   Widget               w; 
-   atom                 *channel;
-   XmAnyCallbackStruct  *call_data; 
+void histCancelCallback(
+   Widget    w, 
+   XtPointer clientData,
+   XtPointer callbackData)
 {  
+   atom *channel = (atom *) clientData;
    XtUnmanageChild(channel->hist.dialog);
    XtDestroyWidget(channel->hist.dialog);  
    channel->upMask &= ~HISTORY_UP ;
@@ -192,11 +190,12 @@ void histCancelCallback(w, channel, call_data)
 }
 
 
-void histResetCallback(w, channel, call_data) 
-   Widget               w; 
-   atom                 *channel;
-   XmAnyCallbackStruct  *call_data; 
+void histResetCallback(
+   Widget    w, 
+   XtPointer clientData,
+   XtPointer callbackData)
 {
+   atom *channel = (atom *) clientData;
    long currentTime;
  
    if (channel->connected) {
@@ -206,11 +205,12 @@ void histResetCallback(w, channel, call_data)
    }
 }
 
-void histCallback(w, channel, call_data)
-   Widget                w;
-   atom                  *channel;
-   XmAnyCallbackStruct   *call_data;
+void histCallback(
+   Widget    w,
+   XtPointer clientData,
+   XtPointer callbackData)
 {
+  atom *channel = (atom *) clientData;
   int        n;
   Widget     label, help;
   Arg        wargs[5];
@@ -269,8 +269,7 @@ void histCallback(w, channel, call_data)
 }
 
 
-int updateHistoryInfo(channel)
-atom *channel;
+int updateHistoryInfo(atom *channel)
 {
   if (channel->monitored) {
      channel->updateMask |= UPDATE_DISPLAY | UPDATE_TEXT;

@@ -37,7 +37,6 @@ void  makeDataFormatStr();
  *	data structure for dials
  */
 extern int dialsUp;
-void probeScanDials();
 /*
  *           X's stuffs
  */
@@ -54,7 +53,7 @@ extern XmFontList fontList2;
 extern XFontStruct *font2;
 extern XtAppContext app;
 
-Boolean updateMonitor();
+void    updateMonitor(XtPointer, XtIntervalId *);
 void    printData();
 void    startMonitor();
 void    stopMonitor();
@@ -75,7 +74,7 @@ struct exception_handler_args arg;
     (void)printf("%s\n", ca_message(stat));
 }
 
-probeCATaskInit() {
+int probeCATaskInit() {
  /* CA Stuff */
   int stat;
 
@@ -94,17 +93,13 @@ probeCATaskInit() {
   return 0;
 }
 
-int channelIsAlreadyConnected(name, channel)
-  char name[];
-  atom *channel;
+int channelIsAlreadyConnected(char name[], atom* channel)
 {
   if (strcmp(name,ca_name(channel->chId))) return FALSE;
   return TRUE;
 }
 
-int connectChannel(name, channel)
-  char name[];
-  atom *channel;
+int connectChannel(char name[], atom *channel)
 {
     int stat;
 
@@ -149,8 +144,7 @@ int connectChannel(name, channel)
     return TRUE;
 }
 
-int getData(channel)
-  atom *channel;
+int getData(atom *channel)
 {
    int stat;
 
@@ -240,9 +234,7 @@ getDataErrorHandler :
    return FALSE;
 }
 
-void initChan(name, channel)
-  char    *name;
-  atom    *channel;
+void initChan(char *name, atom *channel)
 {
   char tmp[40];
   int  stat;
@@ -254,11 +246,12 @@ void initChan(name, channel)
 }
 
 
-void getChan(w, channel, call_data)
-  Widget  w;
-  atom    *channel;
-  XmAnyCallbackStruct  *call_data;
+void getChan(
+  Widget  w,
+  XtPointer clientData,
+  XtPointer callbackStruct)
 {
+  atom    *channel = (atom *) clientData;
   char tmp[40];
   int  stat;
 
@@ -283,11 +276,12 @@ void getChan(w, channel, call_data)
   }   
 }
 
-void startMonitor(w,channel,call_data)
-  Widget                w;
-  atom                  *channel;
-  XmAnyCallbackStruct   *call_data;
+void startMonitor(
+  Widget  w,
+  XtPointer clientData,
+  XtPointer callbackStruct)
 {
+  atom    *channel = (atom *) clientData;
   int stat;
 
   if (channel->upMask & MONITOR_UP) return;
@@ -337,24 +331,26 @@ void startMonitor(w,channel,call_data)
     if ((ia != ECA_NORMAL) || (ip != ECA_NORMAL)) {
       channel->monitored = FALSE;
     } else {
+      XtIntervalId id;
       channel->monitored = TRUE;
       channel->upMask |= MONITOR_UP;
       channel->updateMask |= UPDATE_STATUS1;
       /*
        * Ask Unix for the time.
        */
-     getData(channel);
-     resetHistory(channel);
-      updateMonitor(channel);
+      getData(channel);
+      resetHistory(channel);
+      updateMonitor(channel,&id);
     }
   }
 }
 
-void stopMonitor(w, channel, call_data)
-   Widget                w;
-   atom                  *channel;
-   XmAnyCallbackStruct   *call_data;
+void stopMonitor(
+  Widget  w,
+  XtPointer clientData,
+  XtPointer callbackStruct)
 {
+  atom *channel = (atom *) clientData;
   if (channel->monitored) {
     ia = ca_clear_event(channel->eventId);
     ip = ca_pend_io(1.0);
@@ -374,70 +370,29 @@ void stopMonitor(w, channel, call_data)
   updateDisplay(channel);
 }
 
-void xs_ok_callback(w, client_data, call_data) 
-   Widget               w; 
-   caddr_t              client_data;
-   XmAnyCallbackStruct *call_data; 
+void xs_ok_callback( 
+   Widget    w, 
+   XtPointer clientData,
+   XtPointer callbackStrut) 
 {
    XtUnmanageChild(w);
    XtDestroyWidget(w);   
 }
 
-void helpMonitor(w, data, call_data)
-   Widget                w, data;
-   XmAnyCallbackStruct  *call_data;
+void helpMonitor(
+   Widget    w,
+   XtPointer clientData,
+   XtPointer callbackStrut)
 {
-  int        n;
-  Widget     dialog;
-  Widget     label;
-  Arg        wargs[5];
-  XmString   xmstr;
-
-  /*
-   * Create the message dialog to display the help.
-   */
-   n = 0;
-   if (font) {
-     XtSetArg(wargs[n], XmNtextFontList, fontList); n++;
-   }
-   XtSetArg(wargs[n], XmNautoUnmanage, FALSE); n++;
-   dialog = XmCreateMessageDialog(w, "Help", wargs, n);
-   /*
-    * We won't be using the cancel and help widget. Unmanage it.
-    */
-   XtUnmanageChild(XmMessageBoxGetChild (dialog,
-                   XmDIALOG_CANCEL_BUTTON));
-   XtUnmanageChild(XmMessageBoxGetChild (dialog,
-                    XmDIALOG_HELP_BUTTON));
-   /*
-    * Retrieve the label widget and make the 
-    * text left justified
-    */
-   label = XmMessageBoxGetChild (dialog,
-                                 XmDIALOG_MESSAGE_LABEL);
-   n = 0;
-   XtSetArg(wargs[n],XmNalignment,XmALIGNMENT_CENTER);n++;
-   XtSetValues(label, wargs, n);
-
-   xmstr =  XmStringLtoRCreate(helpStr, XmSTRING_DEFAULT_CHARSET);
-
-   n = 0;
-   XtSetArg(wargs[n], XmNmessageString, xmstr); n++;
-   XtSetValues(dialog, wargs, n);     
-
-   /*
-    * Add an OK callback to pop down the dialog.
-    */
-   XtAddCallback(dialog, XmNokCallback, 
-                 xs_ok_callback, NULL);
-   XtManageChild(dialog);
+  XtPopup(*((Widget *) clientData),XtGrabNone);
 }
 
-void quitMonitor(w, channel, call_data)
-   Widget                w;
-   atom                  *channel;
-   XmAnyCallbackStruct   *call_data;
+void quitMonitor(
+   Widget    w,
+   XtPointer clientData,
+   XtPointer callbackStrut)
 {
+  atom *channel = (atom *) clientData;
   int stat;
   if (channel->monitored) {
     stat = ca_clear_event(channel->eventId);
@@ -461,15 +416,14 @@ void quitMonitor(w, channel, call_data)
     channel->connected = FALSE;
   }
   ca_task_exit();
-  if (fontList) XtFree(fontList);
-  if (fontList1) XtFree(fontList1);
-  if (fontList2) XtFree(fontList2);
+  if (fontList) XmFontListFree(fontList);
+  if (fontList1) XmFontListFree(fontList1);
+  if (fontList2) XmFontListFree(fontList2);
   XtCloseDisplay(XtDisplay(w));
   exit(0);
 }
 
-void probeCASetValue(ch)
-atom *ch;
+void probeCASetValue(atom *ch)
 {
   int    stat;
   
@@ -506,8 +460,7 @@ atom *ch;
 
 }
 
-void printData(arg)
-struct event_handler_args arg;
+void printData(struct event_handler_args arg)
 {
 	int nBytes;
         atom *channel = (atom *) arg.usr;
@@ -524,16 +477,14 @@ struct event_handler_args arg;
         channel->changed = TRUE;
 }
 	
-Boolean updateMonitor(channel)
-   atom   *channel;
+void updateMonitor(
+   XtPointer clientData,
+   XtIntervalId *id)
 {
+   atom *channel = (atom *) clientData;
    long     next_second = 5;
    unsigned int mask, i;
    int stat;
-
-   if (channel->adjust.upMask & ADJUST_DIALS_UP) {
-     probeScanDials();
-   }
 
    if ((channel->upMask & MONITOR_UP) == 0) return;
 

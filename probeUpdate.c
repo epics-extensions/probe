@@ -55,9 +55,8 @@ char         *alarmStatusStrs[] = {
                 "alarm no status",
               };
 
-void wprintf(...)
+void wprintf(Widget w, ...)
 {
-  Widget    w;
   char     *format;
   va_list   args;
   char      str[1000];  /* DANGER: Fixed buffer size */
@@ -66,14 +65,7 @@ void wprintf(...)
   /*
    * Init the variable length args list.
    */
-  va_start(args,(void*)NULL);
-  /*
-   * Extract the destination widget.
-   * Make sure it is a subclass of XmLabel.
-   */
-  w = va_arg(args, Widget);
-  if(!XtIsSubclass(w, xmLabelWidgetClass))
-     XtError("wprintf() requires a Label Widget");
+  va_start(args,w);
   /*
    * Extract the format to be used.
    */
@@ -92,9 +84,7 @@ void wprintf(...)
   va_end(args);
 }
 
-void updateStatusDisplay(channel,i)
-atom *channel;
-unsigned int i;
+void updateStatusDisplay(atom *channel,unsigned int i)
 {
   if (channel->connected) {
     if ((channel->data.D.status > ALARM_NSTATUS) 
@@ -123,9 +113,7 @@ unsigned int i;
   }
 }
 
-void updateDataDisplay(channel,i)
-atom *channel;
-unsigned int i;
+void updateDataDisplay(atom *channel,unsigned int i)
 {
   if (channel->connected) {
     switch(ca_field_type(channel->chId)) {
@@ -155,9 +143,7 @@ unsigned int i;
   }
 }   
 
-void updateLabelDisplay(channel,i)
-atom *channel;
-unsigned int i;
+void updateLabelDisplay(atom *channel,unsigned int i)
 {
   if (channel->connected) {
     wprintf(channel->d[i].w,"%s",ca_name(channel->chId));
@@ -166,9 +152,7 @@ unsigned int i;
   }
 }   
 
-void updateTextDisplay(channel,i)
-atom *channel;
-unsigned int i;
+void updateTextDisplay(atom *channel,unsigned int i)
 {
   char tmp[40];
   switch(ca_field_type(channel->chId)) {
@@ -198,8 +182,7 @@ unsigned int i;
   }
 }   
 
-void updateDisplay(channel)
-atom *channel;
+void updateDisplay(atom *channel)
 {
 unsigned int mask;
 int i;
