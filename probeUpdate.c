@@ -1,4 +1,4 @@
-#include <varargs.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -55,8 +55,7 @@ char         *alarmStatusStrs[] = {
                 "alarm no status",
               };
 
-void wprintf(va_alist)
-     va_dcl
+void wprintf(...)
 {
   Widget    w;
   char     *format;
@@ -67,7 +66,7 @@ void wprintf(va_alist)
   /*
    * Init the variable length args list.
    */
-  va_start(args);
+  va_start(args,(void*)NULL);
   /*
    * Extract the destination widget.
    * Make sure it is a subclass of XmLabel.
