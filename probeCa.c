@@ -54,6 +54,22 @@ extern XtAppContext app;
 
 void probeCAException(struct exception_handler_args args)
 {
+#define MAX_EXCEPTIONS 25    
+    static int nexceptions=0;
+    static int ended=0;
+
+    if(ended) return;
+    if(nexceptions++ > MAX_EXCEPTIONS) {
+	ended=1;
+	xerrmsg("probeCAException: Channel Access Exception:\n"
+	  "Too many exceptions [%d]\n"
+	  "No more will be handled\n"
+	  "Please fix the problem and restart Probe",
+	  MAX_EXCEPTIONS);
+	ca_add_exception_event(NULL, NULL);
+	return;
+    }
+    
     xerrmsg("probeCAException: Channel Access Exception:\n"
       "  Channel Name: %s\n"
       "  Native Type: %s\n"
