@@ -19,7 +19,11 @@
 #include <X11/XlibXtra.h>
 #endif
 
-#define PROBE_VERSION_STRING "PROBE VERSION 1.1.1"
+#include <Xm/MwmUtil.h>
+#include <Xm/Protocols.h>
+#include <X11/Xatom.h>
+
+#define PROBE_VERSION_STRING "PROBE VERSION 1.1.2"
 
 /* System includes for CA */
 
@@ -42,8 +46,9 @@ static String fallbackResources[] = {
     NULL,
 };
 
-/* X stuff */
+/* Global variables */
 
+Atom WM_DELETE_WINDOW;
 static XmStringCharSet charset = (XmStringCharSet) XmSTRING_DEFAULT_CHARSET;
 char	     fontName[] =
 "-adobe-times-bold-i-normal--18-180-75-75-p-98-iso8859-1";
@@ -100,6 +105,11 @@ int main(int argc, char *argv[])
     XSynchronize(display,TRUE);
     (stderr,"\nRunning in SYNCHRONOUS mode!!\n");
 #endif
+
+  /* Fix up WM close */
+    WM_DELETE_WINDOW=XmInternAtom(display,"WM_DELETE_WINDOW",False);
+    XmAddWMProtocolCallback(toplevel,WM_DELETE_WINDOW,
+      quitMonitor,(XtPointer)0);
 
     createFonts();
     watch=XCreateFontCursor(display,XC_watch);

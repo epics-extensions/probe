@@ -441,31 +441,37 @@ void quitMonitor(Widget w, XtPointer clientData,
 {
     atom *channel = (atom *) clientData;
     int stat;
-    if (channel->monitored) {
-	stat = ca_clear_event(channel->eventId);
-	SEVCHK(stat,"quitMonitor: ca_clear_event failed!");
-	stat = ca_pend_io(ca_pend_io_time);
-	SEVCHK(stat,"quitMonitor: ca_clear_event failed!");     
-	channel->monitored = FALSE;
-    }
+    
+    if(channel) {
+	if (channel->monitored) {
+	    stat = ca_clear_event(channel->eventId);
+	    SEVCHK(stat,"quitMonitor: ca_clear_event failed!");
+	    stat = ca_pend_io(ca_pend_io_time);
+	    SEVCHK(stat,"quitMonitor: ca_clear_event failed!");     
+	    channel->monitored = FALSE;
+	}
+	
+	channel->upMask &= ~MONITOR_UP;
+	if (monitorId) {
+	    XtRemoveTimeOut(monitorId);
+	    monitorId = (XtIntervalId)NULL;
+	}
+	
+	if (channel->connected) {
+	    stat = ca_clear_channel(channel->chId);
+	    SEVCHK(stat,"quitMonitor: ca_clear_channel failed!");
+	    stat = ca_pend_io(ca_pend_io_time);     
+	    SEVCHK(stat,"quitMonitor: ca_clear_event failed!");    
+	    channel->connected = FALSE;
+	}
 
-    channel->upMask &= ~MONITOR_UP;
-    if (monitorId) {
-	XtRemoveTimeOut(monitorId);
-	monitorId = (XtIntervalId)NULL;
+	ca_task_exit();
     }
-
-    if (channel->connected) {
-	stat = ca_clear_channel(channel->chId);
-	SEVCHK(stat,"quitMonitor: ca_clear_channel failed!");
-	stat = ca_pend_io(ca_pend_io_time);     
-	SEVCHK(stat,"quitMonitor: ca_clear_event failed!");    
-	channel->connected = FALSE;
-    }
-    ca_task_exit();
+    
     if (fontList) XmFontListFree(fontList);
     if (fontList1) XmFontListFree(fontList1);
     if (fontList2) XmFontListFree(fontList2);
+
     XtCloseDisplay(XtDisplay(w));
     exit(0);
 }

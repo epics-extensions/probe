@@ -14,11 +14,6 @@ CC = purify -first-only -chain-length=25 $(C_$(CMPLR))
 #CC = purify -first-only -chain-length=25 -mail-to-user=evans $(C_$(CMPLR))
 endif
 
-ifdef WIN32
-USR_CFLAGS += /DWIN32 /D_WINDOWS
-USR_LDFLAGS += /SUBSYSTEM:WINDOWS
-endif
-
 PROD = probe
 
 USR_INCLUDES = -I$(MOTIF_INC) -I$(X11_INC)
@@ -28,6 +23,9 @@ USR_LIBS_DEFAULT = Xm Xt X11
 
 USR_LIBS_Linux = Xm Xt Xp Xmu X11
 
+WIN32_RUNTIME=MD
+USR_CFLAGS_WIN32 += /DWIN32 /D_WINDOWS
+USR_LDFLAGS_WIN32 += /SUBSYSTEM:WINDOWS
 USR_LIBS_WIN32 += $(EXCEED_XLIBS)
 USR_CFLAGS_WIN32 += $(EXCEED_CFLAGS)
 
@@ -38,24 +36,6 @@ Xt_DIR = $(X11_LIB)
 Xp_DIR = $(MOTIF_LIB)
 Xmu_DIR = $(X11_LIB)
 X11_DIR = $(X11_LIB)
-
-ifdef WIN32
-# If objects were compiled with different default runtime libraries
-#   (not a good idea), specify which one you want to use by making it
-#   the default and the others nodefault.
-# Currently Exceed is -MD and EPICS is -MDd
-ifeq ($(HOST_OPT),NO)
-USR_LDFLAGS += /defaultlib:"msvcrtd.lib" #-MDd Multi-thread DLL, Debug
-USR_LDFLAGS += /nodefaultlib:"msvcrt.lib"  #-MD  Multi-thread DLL
-else
-USR_LDFLAGS += /defaultlib:"msvcrt.lib"  #-MD  Multi-thread DLL
-USR_LDFLAGS += /nodefaultlib:"msvcrtd.lib" #-MDd Multi-thread DLL, Debug
-endif
-USR_LDFLAGS += /nodefaultlib:"libcmt.lib"  #-MT  Multi-thread
-USR_LDFLAGS += /nodefaultlib:"libcmtd.lib" #-MTd Multi-thread, Debug
-USR_LDFLAGS += /nodefaultlib:"libc.lib"    #-ML  Single-thread     
-USR_LDFLAGS += /nodefaultlib:"libcd.lib"   #-MLd Single-thread, Debug
-endif
 
 SRCS +=	probeAdjust.c
 SRCS +=	probeButtons.c
