@@ -4,9 +4,16 @@ EPICS = ../../../..
 include Target.include
 include $(EPICS)/config/CONFIG_EXTENSIONS
 
-#UNIX_OPT=NO
+#UNIX_OPT = NO
 #STATIC_BUILD = NO
+#PURIFY = YES
 CMPLR = STRICT
+
+ifeq ($(PURIFY),YES)
+CC = purify -first-only -chain-length=25 $(C_$(CMPLR))
+#CC = purify -first-only -chain-length=25 -log-file=purelog $(C_$(CMPLR))
+#CC = purify -first-only -chain-length=25 -mail-to-user=evans $(C_$(CMPLR))
+endif
 
 DEPLIBS = $(EPICS_EXTENSIONS_LIB)/libUnix.a \
            $(EPICS_BASE_LIB)/libca.a \
@@ -51,6 +58,9 @@ probe: $(OBJS) $(DEPLIBS)
 # $Id$
 #
 # $Log$
+# Revision 1.9  1997/07/29 21:24:10  evans
+# Added more information to Info.  Added missing NULL to fallback resources.
+#
 # Revision 1.8  1997/07/29 18:42:27  evans
 # Fixed to work with CMPLR=STRICT and eliminated using return from vsprintf
 # because it is a (non-ANSI) char * for Sun4, even with -Xa or -Xc.

@@ -127,7 +127,7 @@ void makeInfoFormatStr(atom *channel)
     sprintf(str1,"%%.%d%c",channel->format.defaultDecimalPlaces,
       channel->format.defaultFormat);
 
-    sprintf(channel->info.formatStr,"precision = %%-5d  RISC_pad0 = %%d\n");
+    sprintf(channel->info.formatStr,"%%sprecision = %%-5d  RISC_pad0 = %%d\n");
     sprintf(channel->info.formatStr,"%sunits     = %%s\n\n",channel->info.formatStr);
     sprintf(channel->info.formatStr,"%sHOPR = %s  LOPR = %s\n", 
       channel->info.formatStr, str, str1);

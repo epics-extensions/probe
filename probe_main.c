@@ -42,7 +42,8 @@ static void usage(void);
 /* Resources */
 static String fallbackResources[] = {
     "Probe*warningMessage*background: Red",
-    "Probe*warningMessage*foreground: White"
+    "Probe*warningMessage*foreground: White",
+    NULL,
 };
 
 /* X stuff */

@@ -29,7 +29,7 @@ extern XFontStruct *font1;
 
 void updateInfo(atom *channel)
 {
-    char     message[512];
+    char     message[2048];
     XmString xmstr;
     Arg      wargs[5];
     int      n;
@@ -39,12 +39,19 @@ void updateInfo(atom *channel)
     if ((channel->upMask & INFO_UP) == 0) return;
 
     if (channel->connected) {
+      /* Generic information */
+	sprintf(message,"%s\n\n",ca_name(channel->chId));
+	sprintf(message,"%sTYPE: %s\n",message,
+	  dbf_type_to_text(ca_field_type(channel->chId)));   
+	sprintf(message,"%sCOUNT: %d\n",message,ca_element_count(channel->chId));
+	sprintf(message,"%sACCESS: %s%s\n",message,
+	  ca_read_access(channel->chId)?"R":"",ca_write_access(channel->chId)?"W":"");
+	sprintf(message,"%sIOC: %s\n\n",message,ca_host_name(channel->chId));
 	switch(ca_field_type(channel->chId)) {
         case DBF_STRING : 
-	    sprintf(message,"Not available!");   
 	    break;
         case DBF_ENUM   : 
-	    sprintf(message,"number of states = %d\n\n", info->E.no_str);
+	    sprintf(message,"%snumber of states = %d\n\n", message, info->E.no_str);
 	    for (n=0;n<info->E.no_str;n++) {
 		sprintf(message,"%sstate %2d = %s\n",message,n,info->E.strs[n]);
 	    }
@@ -52,7 +59,7 @@ void updateInfo(atom *channel)
         case DBF_CHAR   :  
         case DBF_INT    :           
         case DBF_LONG   : 
-	    sprintf(message,"units     = %-8s\n\n",
+	    sprintf(message,"%sunits     = %-8s\n\n", message,
 	      info->L.units);
 	    sprintf(message,"%sHOPR      = %8d  LOPR      = %8d\n",
 	      message ,info->L.upper_disp_limit,info->L.lower_disp_limit);
@@ -65,7 +72,7 @@ void updateInfo(atom *channel)
 	    break;
         case DBF_FLOAT  :  
         case DBF_DOUBLE : 
-	    sprintf(message,channel->info.formatStr,   
+	    sprintf(message,channel->info.formatStr, message,
 	      info->D.precision, info->D.RISC_pad0,
 	      info->D.units,
 	      info->D.upper_disp_limit,info->D.lower_disp_limit,
