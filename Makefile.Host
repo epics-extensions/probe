@@ -16,6 +16,7 @@ USR_INCLUDES = -I$(MOTIF_INC) -I$(X11_INC)
 
 PROD_LIBS = ca Com
 USR_LIBS_DEFAULT = Xm Xt X11
+USR_LIBS_Linux = Xm Xt X11 Xp Xext
 
 ifdef WIN32
 ifeq ($(EXCEED),Exceed5)
@@ -36,6 +37,8 @@ XmStatic_DIR = $(MOTIF_LIB)
 XmStatXt_DIR = $(MOTIF_LIB)
 HCLXt_DIR = $(X11_LIB)
 Xlib_DIR = $(X11_LIB)
+Xp_DIR = $(X11_LIB)
+Xext_DIR = $(X11_LIB)
 
 SRCS +=	probeAdjust.c
 SRCS +=	probeButtons.c
