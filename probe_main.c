@@ -19,12 +19,7 @@
 #include <X11/XlibXtra.h>
 #endif
 
-#if 0
-#define PROBE_VERSION       1
-#define PROBE_REVISION      0
-#define PROBE_UPDATE_LEVEL  6
-#endif
-#define PROBE_VERSION_STRING "PROBE VERSION 1.1.0"
+#define PROBE_VERSION_STRING "PROBE VERSION 1.1.1"
 
 /* System includes for CA */
 
