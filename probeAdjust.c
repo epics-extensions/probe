@@ -150,7 +150,6 @@ void textAdjustCallback(Widget w, XtPointer clientData,
 	}
 	xerrmsg("textAdjustCallback: Bad value.\n");
 	return;
-	break;
     case DBF_CHAR   : 
     case DBF_INT    :     
     case DBF_LONG   :
@@ -172,7 +171,6 @@ void textAdjustCallback(Widget w, XtPointer clientData,
 	break;
     default         : 
 	return;
-	break;
     } 
     probeCASetValue(channel);
     updateDisplay(channel);

@@ -4,8 +4,9 @@ EPICS = ../../../..
 include Target.include
 include $(EPICS)/config/CONFIG_EXTENSIONS
 
-UNIX_OPT=NO
-STATIC_BUILD = NO
+#UNIX_OPT=NO
+#STATIC_BUILD = NO
+CMPLR = STRICT
 
 DEPLIBS = $(EPICS_EXTENSIONS_LIB)/libUnix.a \
            $(EPICS_BASE_LIB)/libca.a \
@@ -50,6 +51,10 @@ probe: $(OBJS) $(DEPLIBS)
 # $Id$
 #
 # $Log$
+# Revision 1.8  1997/07/29 18:42:27  evans
+# Fixed to work with CMPLR=STRICT and eliminated using return from vsprintf
+# because it is a (non-ANSI) char * for Sun4, even with -Xa or -Xc.
+#
 # Revision 1.7  1997/06/11 20:06:19  evans
 # Rearranged Makefile.Unix.
 #

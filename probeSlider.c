@@ -45,11 +45,9 @@ void sliderCallback(
     case DBF_STRING :
 	xerrmsg("sliderCallback: Unexpected string type.\n");
 	return;
-	break;
     case DBF_ENUM   : 
 	xerrmsg("sliderCallback: Unexpected enum type.\n");
 	return;
-	break;
     case DBF_CHAR   : 
     case DBF_INT    : 
     case DBF_LONG   : 
@@ -64,7 +62,6 @@ void sliderCallback(
     default         :
 	xerrmsg("sliderCallback: Unknown Data type.\n");
 	return;
-	break;
     }
     ch->updateMask |= UPDATE_DISPLAY | UPDATE_TEXT | UPDATE_SLIDER;
     probeCASetValue(ch);
@@ -87,11 +84,9 @@ int calculateSliderMaxMin(atom *ch)
     case DBF_STRING :
 	xerrmsg("calculateSliderMaxMin: Unexpected string type.\n");
 	return -1;
-	break;
     case DBF_ENUM   : 
 	xerrmsg("calculateSliderMaxMin: Unexpected enum type.\n");
 	return -1;
-	break;
     case DBF_CHAR   : 
     case DBF_INT    : 
     case DBF_LONG   :
@@ -218,7 +213,6 @@ int calculateSliderMaxMin(atom *ch)
     default         :
 	xerrmsg("calculateSliderMaxMin: Unknown data type.\n");
 	return -1;
-	break;
     }
     return 0;
 }

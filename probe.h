@@ -265,8 +265,8 @@ typedef struct probeAtom {
 
 /* probe_main.c */
 void winPrintf(Widget w, ...);
-int errmsg(const char *fmt, ...);
-int xerrmsg(const char *fmt, ...);
+void errmsg(const char *fmt, ...);
+void xerrmsg(const char *fmt, ...);
 
 /* probeAdjust.c */
 void adjustCallback(Widget w, XtPointer clientData,

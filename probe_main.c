@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
@@ -17,18 +19,16 @@
 #include <X11/XlibXtra.h>
 #endif
 
+#if 0
 #define PROBE_VERSION       1
 #define PROBE_REVISION      0
 #define PROBE_UPDATE_LEVEL  6
+#endif
 #define PROBE_VERSION_STRING "PROBE VERSION 1.1.0"
 
 /* System includes for CA */
 
-#include <caerr.h>
 #include <cadef.h>
-#include <db_access.h>
-#include <stdio.h>
-#include <string.h>
 
 #include "probe.h"
 
@@ -403,14 +403,13 @@ void winPrintf(Widget w, ...)
     va_end(args);
 }
 
-int errmsg(const char *fmt, ...)
+void errmsg(const char *fmt, ...)
 {
     va_list vargs;
     static char lstring[1024];  /* DANGER: Fixed buffer size */
-    int nchars=0;
     
     va_start(vargs,fmt);
-    nchars+=vsprintf(lstring,fmt,vargs);
+    vsprintf(lstring,fmt,vargs);
     va_end(vargs);
     
     if(lstring[0] != '\0') {
@@ -420,21 +419,19 @@ int errmsg(const char *fmt, ...)
 	fprintf(stderr,"%s\n",lstring);
 #endif
     }
-    return nchars;
 }
 
-int xerrmsg(const char *fmt, ...)
+void xerrmsg(const char *fmt, ...)
 {
     Widget warningbox,child;
     XmString cstring;
     va_list vargs;
     static char lstring[1024];  /* DANGER: Fixed buffer size */
-    int nchars=0;
     int nargs=10;
     Arg args[10];
     
     va_start(vargs,fmt);
-    nchars+=vsprintf(lstring,fmt,vargs);
+    vsprintf(lstring,fmt,vargs);
     va_end(vargs);
     
     if(lstring[0] != '\0') {
@@ -458,7 +455,6 @@ int xerrmsg(const char *fmt, ...)
 	fprintf(stderr,"%s\n",lstring);
 #endif
     }
-    return nchars;
 }
 
 static void usage(void)

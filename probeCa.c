@@ -16,6 +16,7 @@
 #include <cadef.h>
 #include <db_access.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <alarm.h>
 #include <time.h>
