@@ -328,7 +328,8 @@ int main(int argc, char *argv[])
 	    "Probe", fontList, NULL,
 	    "Probe - A channel Access Utility",NULL,
 	    versionString,
-	    "Developed at Argonne National Laboratory, by Frederick Vong", NULL,
+	    "Developed at Argonne National Laboratory\n"
+	    "     by Fred Vong & Ken Evans", NULL,
 	    -1,-1,3);
     }
 
