@@ -67,7 +67,7 @@ void updateHistory(atom *channel, int dummy)
          case DBF_ENUM   : 
            sprintf(message,"Start Time - %s\n\nlast modified - %s\nlast message = "
                    ,channel->hist.startTimeStr,channel->hist.lastMaxTimeStr);
-           if (strlen(channel->info.data.E.strs[channel->hist.min.E]) > 0) {
+           if (strlen(channel->info.data.E.strs[channel->hist.min.E]) > (size_t)0) {
              sprintf(message,"%s%s\n\n",message,
                      channel->info.data.E.strs[channel->hist.min.E]);
            } else {

@@ -129,7 +129,7 @@ void createButtons(atom *ch)
       b->buttonsSelected = i;
       XtSetArg(wargs[n],XmNset,TRUE); n++;
     }
-    if (strlen(ch->info.data.E.strs[i]) > 0) {
+    if (strlen(ch->info.data.E.strs[i]) > (size_t)0) {
       b->buttons[i] = XmCreateToggleButton(b->panel,
                          ch->info.data.E.strs[i],wargs,n);
     } else {

@@ -68,7 +68,7 @@ void updateAdjustPanel(atom *ch)
 
   if (ch->connected == FALSE) {
     if (ch->adjust.dialog != NULL) {
-      adjustCancelCallback(NULL,ch,NULL);
+      adjustCancelCallback(NULL,(XtPointer)ch,NULL);
       return;
     }
   } else {

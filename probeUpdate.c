@@ -121,7 +121,7 @@ void updateDataDisplay(atom *channel,unsigned int i)
         wprintf(channel->d[i].w,"%s",channel->data.S.value);
         break;
       case DBF_ENUM :         
-        if (strlen(channel->info.data.E.strs[channel->data.E.value]) > 0) {
+        if (strlen(channel->info.data.E.strs[channel->data.E.value]) > (size_t)0) {
           wprintf(channel->d[i].w,"%s",
                      channel->info.data.E.strs[channel->data.E.value]);
         } else {
@@ -161,7 +161,7 @@ void updateTextDisplay(atom *channel,unsigned int i)
       XmTextSetString(channel->d[i].w,tmp);
       break;
     case DBF_ENUM :         
-      if (strlen(channel->info.data.E.strs[channel->data.E.value]) > 0) {
+      if (strlen(channel->info.data.E.strs[channel->data.E.value]) > (size_t)0) {
         sprintf(tmp,"%s",channel->info.data.E.strs[channel->data.E.value]);
       } else {
         sprintf(tmp,"%d",channel->data.E.value);

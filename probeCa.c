@@ -340,7 +340,7 @@ void startMonitor(
        */
       getData(channel);
       resetHistory(channel);
-      updateMonitor(channel,&id);
+      updateMonitor((XtPointer) channel,&id);
     }
   }
 }
