@@ -1,9 +1,8 @@
-#include <limits.h>
+/* Main include file for Probe */
 
-#define PROBE_VERSION       1
-#define PROBE_REVISION      1
-#define PROBE_MODIFICATION  2
-#define PROBE_VERSION_STRING "Probe Version 1.1.2"
+# include "probeVersion.h"
+
+#include <limits.h>
 
 #if 0     /* This is a non-standard file and probably not needed */
 #include <values.h>
