@@ -1,5 +1,8 @@
 # Makefile.Unix for Probe
 
+# Unix builds for Probe are no longer supported.  This file may not
+work correctly.
+
 EPICS = ../../../..
 include Target.include
 include $(EPICS)/config/CONFIG_EXTENSIONS
@@ -53,47 +56,8 @@ include $(EPICS)/config/RULES.Unix
 probe: $(OBJS) $(DEPLIBS)
 	$(LINK.c) -o $@ $(OBJS) $(LDLIBS)
 
-#
-# $Id$
-#
-# $Log$
-# Revision 1.11  1998/07/15 15:21:40  evans
-# Added new files and moved ProductDescriptionShell.c from former libUnix.
-#
-# Revision 1.10  1998/06/08 15:52:39  evans
-# Added better exception handler.  Minor other changes.
-#
-# Revision 1.9  1997/07/29 21:24:10  evans
-# Added more information to Info.  Added missing NULL to fallback resources.
-#
-# Revision 1.8  1997/07/29 18:42:27  evans
-# Fixed to work with CMPLR=STRICT and eliminated using return from vsprintf
-# because it is a (non-ANSI) char * for Sun4, even with -Xa or -Xc.
-#
-# Revision 1.7  1997/06/11 20:06:19  evans
-# Rearranged Makefile.Unix.
-#
-# Revision 1.6  1997/06/11 20:04:36  evans
-# Version 1.1.0.  Rewrote all files to have function prototypes and give
-# no warnings in WIN32.  Major changes in coding but same functionality.
-# This version works in WIN32 under Exceed (although there seem to be
-# problems with Channel Access in WIN32).  Added hourglass when
-# searching for a process variable.
-#
-# Revision 1.5  1995/03/06 21:22:49  vong
-# probe version 1.0.2
-# conform to ANSI C
-#
-# Revision 1.4  1994/11/09  20:43:26  jba
-# Motif references changed to $(MOTIF_INC) and $(MOTIF_LIB)
-#
-# Revision 1.3  1994/10/25  15:52:13  winans
-# Changed the SRCS macro to SRCS.c and SRCS.cc
-#
-# Revision 1.2  1994/09/21  22:20:35  jba
-# New definitions in CONFIG* files
-#
-# Revision 1.1  1994/09/14  21:42:00  jba
-# Modified for new CONFIG files
-#
-#
+
+# **************************** Emacs Editing Sequences *****************
+# Local Variables:
+# mode: makefile
+# End:
