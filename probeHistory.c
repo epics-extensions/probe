@@ -90,7 +90,7 @@ void updateHistory(atom *channel)
 	case DBF_CHAR   :  
 	case DBF_INT    :           
 	case DBF_LONG   : 
-	    sprintf(message,"Start Time - %s\n\nMax = %d - %s\nMin = %d - %s\n\n",
+	    sprintf(message,"Start Time - %s\n\nMax = %ld - %s\nMin = %ld - %s\n\n",
 	      channel->hist.startTimeStr,channel->hist.max.L,
 	      channel->hist.lastMaxTimeStr,channel->hist.min.L,
 	      channel->hist.lastMinTimeStr);

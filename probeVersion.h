@@ -10,6 +10,6 @@
 
 #define PROBE_VERSION       1
 #define PROBE_REVISION      1
-#define PROBE_MODIFICATION  2
-#define PROBE_UPDATE_LEVEL  2
-#define PROBE_VERSION_STRING "Probe Version 1.1.2 (8-2-2002)"
+#define PROBE_MODIFICATION  3
+#define PROBE_UPDATE_LEVEL  0
+#define PROBE_VERSION_STRING "Probe Version 1.1.3.0 (7-21-2004)"

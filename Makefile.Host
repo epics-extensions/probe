@@ -15,17 +15,22 @@ include $(TOP)/config/CONFIG_EXTENSIONS
 ifdef WIN32
 #HOST_OPT = YES
 else
-#HOST_OPT = NO
+HOST_OPT = NO
 endif
 
 CMPLR = STRICT
 #STATIC_BUILD = YES 
-#PURIFY = YES
 
-ifeq ($(PURIFY),YES)
-CC = purify -first-only -chain-length=25 $(C_$(CMPLR))
-#CC = purify -first-only -chain-length=25 -log-file=purelog $(C_$(CMPLR))
-#CC = purify -first-only -chain-length=25 -mail-to-user=evans $(C_$(CMPLR))
+ifeq ($(OS_CLASS),solaris)
+#PURIFY=YES
+PURIFY_FLAGS = -first-only -chain-length=26
+#PURIFY_FLAGS = -first-only -chain-length=26 -max_threads=256
+#PURIFY_FLAGS = -first-only -chain-length=26 -always-use-cache-dir -cache-dir=/tmp/purifycache
+#PURIFY_FLAGS = -first-only -chain-length=26 -enable-new-cache-scheme
+#PURIFY_FLAGS = -first-only -chain-length=26 -enable-new-cache-scheme -always-use-cache-dir -cache-dir=/tmp/purifycache
+
+# Put the cache files in the appropriate bin directory
+PURIFY_FLAGS += -always-use-cache-dir -cache-dir=$(shell $(PERL) $(TOP)/config/fullPathName.pl .)
 endif
 
 PROD = probe

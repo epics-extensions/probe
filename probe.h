@@ -16,7 +16,7 @@
 #include <values.h>
 #endif
 
-#define CA_PEND_IO_TIME 15
+#define CA_PEND_IO_TIME 10
 #define ECANAMESIZE 34
 
 #define long2int(A) \
@@ -279,6 +279,7 @@ typedef struct probeAtom {
 void winPrintf(Widget w, ...);
 void errmsg(const char *fmt, ...);
 void xerrmsg(const char *fmt, ...);
+char *timeStamp(void);
 
 /* probeAdjust.c */
 void adjustCallback(Widget w, XtPointer clientData,

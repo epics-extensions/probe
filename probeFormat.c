@@ -99,7 +99,7 @@ void setChannelDefaults(atom *channel)
     int i = 0;
     int j = 0;
 
-    while (channel->format.defaultUnits[i] = channel->info.data.D.units[j++]) {
+    while ((channel->format.defaultUnits[i] = channel->info.data.D.units[j++])) {
 	switch (channel->format.defaultUnits[i]) {
 	case '%' : 
 	    i++; channel->format.defaultUnits[i] = '%';
@@ -193,7 +193,6 @@ void formatCancelCallback(Widget w, XtPointer clientData,
   XtPointer callbackStruct)
 {
     atom *channel = (atom *) clientData;
-    XmAnyCallbackStruct  *call_data = (XmAnyCallbackStruct  *) callbackStruct;; 
     XtUnmanageChild(channel->format.dialog);
     XtDestroyWidget(channel->format.dialog); 
     channel->format.dialog = NULL;

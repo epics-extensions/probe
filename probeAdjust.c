@@ -46,8 +46,7 @@ void adjustOptionCallback();
 void adjustCancelCallback(Widget w, XtPointer clientData,
   XtPointer callbackStruct)
 {
-    atom                *channel = (atom *) clientData;
-    XmAnyCallbackStruct *call_data = (XmAnyCallbackStruct *) callbackStruct; 
+    atom *channel = (atom *) clientData;
     XtUnmanageChild(channel->adjust.dialog);
     XtDestroyWidget(channel->adjust.dialog);
     channel->adjust.upMask = ALL_DOWN;
@@ -129,7 +128,6 @@ void textAdjustCallback(Widget w, XtPointer clientData,
     double outputD;
 
     atom *channel = (atom *) clientData;
-    XmAnyCallbackStruct  *callData = (XmAnyCallbackStruct  *) callbackData;
   
     if (channel->monitored == FALSE) return;
 

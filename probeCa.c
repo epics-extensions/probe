@@ -80,6 +80,7 @@ void probeCAException(struct exception_handler_args args)
     }
     
     xerrmsg("probeCAException: Channel Access Exception:\n"
+      "  Time: %s\n"
       "  Channel Name: %s\n"
       "  Native Type: %s\n"
       "  Native Count: %hu\n"
@@ -91,6 +92,7 @@ void probeCAException(struct exception_handler_args args)
       "  Requested Count: %ld\n"
       "  Source File: %s\n"
       "  Line number: %u",
+      timeStamp(),
       args.chid?ca_name(args.chid):"Unavailable",
       args.chid?dbf_type_to_text(ca_field_type(args.chid)):"Unavailable",
       args.chid?ca_element_count(args.chid):0,
@@ -314,7 +316,7 @@ void getChan(Widget  w, XtPointer clientData,
     while (*name == ' ') {
 	name++;
     }
-    if (tmp = strstr(name,"\n")) {
+    if ((tmp = strstr(name,"\n"))) {
 	*tmp = '\0';
     }
 
@@ -551,27 +553,29 @@ void updateMonitor(XtPointer clientData, XtIntervalId *id)
     fprintf(stderr,"updateMonitor: 1\n");
 #endif	
 
-    if ((channel->upMask & MONITOR_UP) == 0) return;
-    
+    stat = ca_poll();
+  /* KE: ca_pend_event should not return ECA_TIMEOUT */
+    if ((stat != ECA_NORMAL) && (stat != ECA_TIMEOUT)) {
+	xerrmsg("upDateMonitor: ca_pend_event failed. Error(%d)\n",ip);
+    }
+
 #if DEBUG_WINSOCK
     fprintf(stderr,"updateMonitor: 2\n");
 #endif	
     
-    stat = ca_pend_event(0.001);
-
+    if ((channel->upMask & MONITOR_UP) != 0) {
+	
 #if DEBUG_WINSOCK
-    fprintf(stderr,"updateMonitor: 3\n");
+	fprintf(stderr,"updateMonitor: 3\n");
 #endif	
-
-    if ((stat != ECA_NORMAL) && (stat != ECA_TIMEOUT)) {
-	xerrmsg("upDateMonitor: ca_pend_event failed. Error(%d)\n",ip);
+	
+	if (channel->changed) {
+	    updateHistoryInfo(channel);
+	    channel->changed = FALSE;
+	}
     }
-    if (channel->changed) {
-	updateHistoryInfo(channel);
-	channel->changed = FALSE;
-    }
+    if (channel->updateMask != NO_UPDATE) updateDisplay(channel);         
 
-    if (channel->updateMask != NO_UPDATE) 
-      updateDisplay(channel);         
+  /* Keep the channel going */
     XtAppAddTimeOut(app, next_second, updateMonitor, channel);
 }

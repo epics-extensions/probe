@@ -331,7 +331,10 @@ int main(int argc, char *argv[])
 
   /* Initialize  a given pvname */
     if(pvname) {
+#if 0
+      /* Echo the PV name */
 	errmsg("PV = %s\n",pvname);
+#endif
 	initChan(pvname,&channel);
     }
 
@@ -489,4 +492,20 @@ static void usage(void)
       "    -w time   Wait time seconds for CA connections [%d]\n"
       "    -h        Help (This message)\n",
       CA_PEND_IO_TIME);
+}
+
+/* Gets current time and puts it in a static array * The calling
+ program should copy it to a safe place
+ e.g. strcpy(savetime,timestamp()); */
+char *timeStamp(void)
+{
+	static char timeStampStr[16];
+	long now;
+	struct tm *tblock;
+	
+	time(&now);
+	tblock=localtime(&now);
+	strftime(timeStampStr,20,"%b %d %H:%M:%S",tblock);
+	
+	return timeStampStr;
 }

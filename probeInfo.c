@@ -51,7 +51,7 @@ void updateInfo(atom *channel)
 	sprintf(message,"%s\n\n",ca_name(channel->chId));
 	sprintf(message,"%sTYPE: %s\n",message,
 	  dbf_type_to_text(ca_field_type(channel->chId)));   
-	sprintf(message,"%sCOUNT: %d\n",message,ca_element_count(channel->chId));
+	sprintf(message,"%sCOUNT: %ld\n",message,(long)ca_element_count(channel->chId));
 	sprintf(message,"%sACCESS: %s%s\n",message,
 	  ca_read_access(channel->chId)?"R":"",ca_write_access(channel->chId)?"W":"");
 	sprintf(message,"%sIOC: %s\n\n",message,ca_host_name(channel->chId));
