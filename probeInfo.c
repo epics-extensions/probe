@@ -92,6 +92,7 @@ void updateInfo(atom *channel)
     XtSetArg(wargs[n], XmNmessageString, xmstr); n++;
     XtSetValues(channel->info.dialog, wargs, n); 
     channel->updateMask &= ~UPDATE_INFO;
+    XmStringFree(xmstr);
 }
 
 void infoDialogCallback(Widget w, XtPointer clientData,
