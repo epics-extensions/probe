@@ -2,6 +2,13 @@
 # $Id$
 #
 # $Log$
+# Revision 1.6  1997/06/11 20:04:36  evans
+# Version 1.1.0.  Rewrote all files to have function prototypes and give
+# no warnings in WIN32.  Major changes in coding but same functionality.
+# This version works in WIN32 under Exceed (although there seem to be
+# problems with Channel Access in WIN32).  Added hourglass when
+# searching for a process variable.
+#
 # Revision 1.5  1995/03/06 21:22:49  vong
 # probe version 1.0.2
 # conform to ANSI C
@@ -24,11 +31,14 @@ EPICS = ../../../..
 include Target.include
 include $(EPICS)/config/CONFIG_EXTENSIONS
 
+UNIX_OPT=NO
+STATIC_BUILD = NO
+
 DEPLIBS = $(EPICS_EXTENSIONS_LIB)/libUnix.a \
            $(EPICS_BASE_LIB)/libca.a \
            $(EPICS_BASE_LIB)/libCom.a
 
-USR_CFLAGS = -I$(MOTIF_INC) -I$(X11_INC)
+USR_CFLAGS = -g -I$(MOTIF_INC) -I$(X11_INC)
 USR_LDFLAGS = -L$(EPICS_EXTENSIONS_LIB) -L$(MOTIF_LIB) -L$(X11_LIB)
 USR_LDLIBS = -lca -lCom -lUnix -lXm -lXt -lX11 -lm
 

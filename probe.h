@@ -1,10 +1,16 @@
 #include <limits.h>
+
+#if 0     /* This is a non-standard file and probably not needed */
 #include <values.h>
+#endif
+
+#define CA_PEND_IO_TIME 15
+#define ECANAMESIZE 34
 
 #define long2int(A) \
-        ((A)>INT_MAX)?INT_MAX:(((A)<INT_MIN)?INT_MIN:(int)(A))
+((A)>INT_MAX)?INT_MAX:(((A)<INT_MIN)?INT_MIN:(int)(A))
 #define double2int(A) \
-        ((A)>(double)INT_MAX)?INT_MAX:(((A)<(double)INT_MIN)?INT_MIN:(int)(A))
+    ((A)>(double)INT_MAX)?INT_MAX:(((A)<(double)INT_MIN)?INT_MIN:(int)(A))
 
 #define keepInRange(A,B,C) ((A)>(B))?(B):(((A)<(C))?(C):(A))
  
@@ -51,7 +57,7 @@
 
 
 #define LABEL1                    0
-#define LABEL2  		  1
+#define LABEL2			  		  1
 #define LABEL3                    2
 #define LABEL4                    3
 #define STATUS1                   4
@@ -79,28 +85,28 @@
 #define HISTORY_UP		  1
 #define INFO_UP			  2
 #define FORMAT_UP		  4
-#define ADJUST_UP                 8
+#define ADJUST_UP         8
 #define MAIN_UP 		 16
-#define MONITOR_UP               32
-#define OPTION_UP                64
+#define MONITOR_UP       32
+#define OPTION_UP        64
 
-typedef struct DUStruct {
-   void (*proc)();
-   Widget w;
-} displayProc;
+    typedef struct DUStruct {
+	void (*proc)();
+	Widget w;
+    } displayProc;
 
 typedef union {
-   struct dbr_time_enum   E; 
-   struct dbr_time_long   L;
-   struct dbr_time_double D; 
-   struct dbr_time_string S;
+    struct dbr_time_enum   E; 
+    struct dbr_time_long   L;
+    struct dbr_time_double D; 
+    struct dbr_time_string S;
 } DataBuf;
 
 typedef union {   
-  struct dbr_ctrl_enum    E;
-  struct dbr_ctrl_long    L;
-  struct dbr_ctrl_double  D;
-  struct dbr_sts_string   S;
+    struct dbr_ctrl_enum    E;
+    struct dbr_ctrl_long    L;
+    struct dbr_ctrl_double  D;
+    struct dbr_sts_string   S;
 } InfoBuf;
 
 /*
@@ -115,40 +121,40 @@ typedef union {
 #define HIST_RESET_ALL        0x0000001F
 
 typedef union {
-   double D;
-   long   L;
-   short  E;
-   char   S[BUFF_SIZE];
+    double D;
+    long   L;
+    short  E;
+    char   S[BUFF_SIZE];
 } histBuf;
 
 typedef struct HIStruct {
-   unsigned int updateMask;
+    unsigned int updateMask;
 
-   histBuf      max;
-   histBuf      min;
-   short        currentStatus;
-   short        lastStatus;
-   short        currentSeverity;
-   short        lastSeverity;
+    histBuf      max;
+    histBuf      min;
+    short        currentStatus;
+    short        lastStatus;
+    short        currentSeverity;
+    short        lastSeverity;
    
-   long         startTime;
-   long         lastMaxTime;
-   long         lastMinTime;
-   long         currentStatusTime;
-   long         lastStatusTime;
-   long         currentSeverityTime;
-   long         lastSeverityTime;
+    long         startTime;
+    long         lastMaxTime;
+    long         lastMinTime;
+    long         currentStatusTime;
+    long         lastStatusTime;
+    long         currentSeverityTime;
+    long         lastSeverityTime;
 
-   char         startTimeStr[12];
-   char         lastMaxTimeStr[12];
-   char         lastMinTimeStr[12];
-   char         currentStatusTimeStr[12];
-   char         lastStatusTimeStr[12];
-   char         currentSeverityTimeStr[12];
-   char         lastSeverityTimeStr[12];
-   char         formatStr[256];
+    char         startTimeStr[12];
+    char         lastMaxTimeStr[12];
+    char         lastMinTimeStr[12];
+    char         currentStatusTimeStr[12];
+    char         lastStatusTimeStr[12];
+    char         currentSeverityTimeStr[12];
+    char         lastSeverityTimeStr[12];
+    char         formatStr[256];
 
-   Widget       dialog;
+    Widget       dialog;
 } histData;
 
 #define DEFAULT_DECIMAL_PLACES 3
@@ -158,22 +164,22 @@ typedef struct HIStruct {
 #define DEFAULT_FORMAT_STR "%.3f"
 
 typedef struct FORStruct {
-  Widget dialog;  
-  Widget toggleButtons[16];
-  Widget eFButtons[2];
+    Widget dialog;  
+    Widget toggleButtons[16];
+    Widget eFButtons[2];
 
-  short  defaultDecimalPlaces;
-  short  defaultWidth;
-  char   defaultFormat;
-  char   defaultUnits[20];
-  char   str[20];
-  char   str1[20];
+    short  defaultDecimalPlaces;
+    short  defaultWidth;
+    char   defaultFormat;
+    char   defaultUnits[20];
+    char   str[20];
+    char   str1[20];
 } formatData;
 
 typedef struct INFOStruc {
-  Widget dialog;
-  char   formatStr[256];
-  InfoBuf data;
+    Widget dialog;
+    char   formatStr[256];
+    InfoBuf data;
 } infoData;
 
 /*
@@ -208,49 +214,150 @@ typedef union {
 } SliderInfo;
 
 typedef struct SLIDERStruc {
-  Widget panel;
-  Widget slider;
-  Widget lowerLabel;
-  Widget upperLabel;
-  Widget valueLabel;
-  SliderInfo info;
+    Widget panel;
+    Widget slider;
+    Widget lowerLabel;
+    Widget upperLabel;
+    Widget valueLabel;
+    SliderInfo info;
 } Slider;
 
 typedef struct BUTTONStruc {
-  Widget panel;
-  Widget buttons[MAX_ADJUST_BUTTONS];
-  short buttonsSelected;
+    Widget panel;
+    Widget buttons[MAX_ADJUST_BUTTONS];
+    short buttonsSelected;
 } Buttons;
 
 
 typedef struct ADJStruc {
-  Widget dialog;
-  Widget panel;
-  Widget optionDialog;
-  Slider slider;
-  Buttons buttons;
-  Buttons dials;
-  unsigned int upMask;
-  unsigned int updateMask;
+    Widget dialog;
+    Widget panel;
+    Widget optionDialog;
+    Slider slider;
+    Buttons buttons;
+    Buttons dials;
+    unsigned int upMask;
+    unsigned int updateMask;
 } adjData;
   
 
 
 typedef struct probeAtom {
-   unsigned int updateMask;
-   unsigned int upMask;
-   int          dataType;
-   DataBuf      data;
-   long         lastChangedTime;
-   long         currentTime;
-   int          changed;
-   infoData     info;   
-   chid         chId;
-   evid         eventId;
-   int          connected;
-   int          monitored;
-   histData     hist;
-   formatData   format;
-   adjData      adjust;
-   displayProc  d[LAST_ITEM];
+    unsigned int updateMask;
+    unsigned int upMask;
+    int          dataType;
+    DataBuf      data;
+    long         lastChangedTime;
+    long         currentTime;
+    int          changed;
+    infoData     info;   
+    chid         chId;
+    evid         eventId;
+    int          connected;
+    int          monitored;
+    histData     hist;
+    formatData   format;
+    adjData      adjust;
+    displayProc  d[LAST_ITEM];
 } atom;
+
+/* Function prototypes */
+
+/* probe_main.c */
+void winPrintf(Widget w, ...);
+int errmsg(const char *fmt, ...);
+int xerrmsg(const char *fmt, ...);
+
+/* probeAdjust.c */
+void adjustCallback(Widget w, XtPointer clientData,
+  XtPointer callbackStruct);
+void adjustCancelCallback(Widget w, XtPointer clientData,
+  XtPointer callbackStruct);
+void textAdjustCallback(Widget w, XtPointer clientData,
+  XtPointer callbackData);
+void updateAdjustPanel(atom *ch);
+void textAdjustCallback(Widget w, XtPointer clientData,
+  XtPointer callbackData);
+
+/* probeButtons.c */
+void createButtons(atom *ch) ;
+void destroyButtons(atom *ch);
+void updateButtons(atom *ch, int dummy);
+
+/* probeCa.c */
+int channelIsAlreadyConnected(char name[], atom* channel);
+int connectChannel(char name[], atom *channel);
+void getChan(Widget  w, XtPointer clientData,
+  XtPointer callbackStruct);
+int getData(atom *channel);
+void helpMonitor(Widget w, XtPointer clientData,
+  XtPointer callbackStrut);
+void initChan(char *name, atom *channel);
+void printData(struct event_handler_args arg);
+void probeCAException(struct exception_handler_args arg);
+void probeCASetValue(atom *ch);
+int probeCATaskInit();
+void quitMonitor(Widget w, XtPointer clientData,
+  XtPointer callbackStrut);
+void startMonitor(Widget w, XtPointer clientData,
+  XtPointer callbackStruct);
+void stopMonitor(Widget  w,XtPointer clientData,
+  XtPointer callbackStruct);
+void updateMonitor(XtPointer clientData, XtIntervalId *id);
+void xs_ok_callback(Widget w, XtPointer clientData,
+  XtPointer callbackStrut);
+
+/* probeFormat.c */
+void formatCallback(Widget w, XtPointer clientData,
+  XtPointer callbackStruct);
+void formatCancelCallback(Widget w, XtPointer clientData,
+  XtPointer callbackStruct);
+void formatDialogCallback(Widget w, XtPointer clientData,
+  XtPointer callbackStruct);
+void initFormat(atom *channel);
+void setChannelDefaults(atom *channel);
+
+/* probeHistory.c */
+void histCallback(Widget w, XtPointer clientData,
+  XtPointer callbackData);
+void histCancelCallback(Widget w, XtPointer clientData,
+  XtPointer callbackData);
+void histResetCallback(Widget w, XtPointer clientData,
+  XtPointer callbackData);
+void resetHistory(atom *channel);
+void updateHistory(atom *channel);
+void updateHistoryInfo(atom *channel);
+
+/* probeInfo.c */
+void infoCallback(Widget w, XtPointer clientData,
+  XtPointer callbackData);
+void infoDialogCallback(Widget w, XtPointer clientData,
+  XtPointer callbackData);
+
+/* probeInit.c */
+void clearAdjust(adjData *a);
+void clearButtons(Buttons *b);
+void clearHistData(histData *h);
+void clearSlider(Slider *s);
+void initChannel(atom *channel);
+
+/* probeSlider.c */
+int calculateSliderMaxMin(atom *ch);
+int createSlider(atom *ch);
+void destroySlider(atom *ch);
+void updateSlider(atom *ch);
+
+/* probeUpdate.c */
+void updateDataDisplay(atom *channel,unsigned int i);
+void updateDisplay(atom *channel);
+void updateInfo(atom *channel);
+void updateLabelDisplay(atom *channel,unsigned int i);
+void updateStatusDisplay(atom *channel,unsigned int i);
+void updateTextDisplay(atom *channel,unsigned int i);
+
+/* Global variables */
+Widget toplevel;
+Window mainwindow;
+Cursor watch;
+Display *display;
+int ca_pend_io_time;

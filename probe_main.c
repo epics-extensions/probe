@@ -1,7 +1,9 @@
 #include <stdio.h>
+#include <stdarg.h>
 
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
+#include <X11/cursorfont.h>
 #include <Xm/Xm.h>
 #include <Xm/Label.h>
 #include <Xm/RowColumn.h>
@@ -11,14 +13,16 @@
 #include <Xm/MessageB.h>
 #include "epicsVersion.h"
 
+#ifdef  WIN32
+#include <X11/XlibXtra.h>
+#endif
+
 #define PROBE_VERSION       1
 #define PROBE_REVISION      0
 #define PROBE_UPDATE_LEVEL  6
-#define PROBE_VERSION_STRING "PROBE VERSION 1.0.6"
+#define PROBE_VERSION_STRING "PROBE VERSION 1.1.0"
 
-/*	
- *       System includes for CA		
- */
+/* System includes for CA */
 
 #include <caerr.h>
 #include <cadef.h>
@@ -30,340 +34,440 @@
 
 extern Widget createAndPopupProductDescriptionShell();
 
-/*
- *           X's stuffs
- */
+/* Function prototypes */
+
+static void createFonts();
+static void usage(void);
+
+/* Resources */
+static String fallbackResources[] = {
+    "Probe*warningMessage*background: Red",
+    "Probe*warningMessage*foreground: White"
+};
+
+/* X stuff */
 
 static XmStringCharSet charset = (XmStringCharSet) XmSTRING_DEFAULT_CHARSET;
 char	     fontName[] =
-             "-adobe-times-bold-i-normal--18-180-75-75-p-98-iso8859-1";
+"-adobe-times-bold-i-normal--18-180-75-75-p-98-iso8859-1";
 XFontStruct  *font = NULL;
 XmFontList   fontList = NULL;
 char         fontName1[] =
-             "10x20";
+"10x20";
 XFontStruct  *font1 = NULL;
 XmFontList   fontList1 = NULL;
 char         fontName2[] =
-             "-adobe-helvetica-bold-o-normal--24-240-75-75-p-138-iso8859-1";
+"-adobe-helvetica-bold-o-normal--24-240-75-75-p-138-iso8859-1";
 XFontStruct  *font2 = NULL;
 XmFontList   fontList2 = NULL;
 
 char         fontName3[] =
-             "-adobe-times-bold-i-normal--20-140-100-100-p-98-iso8859-1";
+"-adobe-times-bold-i-normal--20-140-100-100-p-98-iso8859-1";
 char         fontName4[] =
-             "10x20";
+"10x20";
 char         fontName5[] =
-	     "-adobe-helvetica-bold-o-normal--34-240-100-100-p-182-iso8859-1";
+"-adobe-helvetica-bold-o-normal--34-240-100-100-p-182-iso8859-1";
 
-Widget       toplevel, panel, display, commands, start, stop, help, quit,
-             nameTag, data, status, edit, adjust, history, info, option;
-
-atom         channel;
-
-/*
- *      probeCa.c
- */
-
-void    startMonitor();
-void    stopMonitor();
-void    getChan();
-void    helpMonitor();
-void    quitMonitor();
-void    adjustCallback();
-int     probeCATaskInit();
-
-/*
- *      probeHistory.c
- */
-
-void    histCallback();
-
-/*
- *      probeInfo.c
- */
-
-void    infoCallback();
-
-/*  
- *      probeFormat.c
- */
-
-void   makeHistFormatStr();
-void   makeInfoFormatStr();
-void   formatCallback();
-
-/*
- *     probeDial.c
- */
-
-void initializeDials();
-void createFonts();
-
-void updateLabelDisplay();
-void updateTextDisplay();
-void updateDataDisplay();
-void updateStatusDisplay();
-void initFormat();
-
-
-void createFonts() {
-
-  /* Create fonts */
-
-  font = XLoadQueryFont (XtDisplay(toplevel),fontName);
-  if (!font) {
-     font = XLoadQueryFont (XtDisplay(toplevel),fontName3);
-  } 
-
-  if (font) {
-     fontList = XmFontListCreate(font, charset);
-  }else {
-     printf("Unable to load font! \n");
-  }
-
-
-  font1 = XLoadQueryFont (XtDisplay(toplevel),fontName1);
-  if (!font1) {
-     font1 = XLoadQueryFont (XtDisplay(toplevel),fontName4);
-  } 
-
-  if (font1) {
-     fontList1 = XmFontListCreate(font1, charset);
-  } else {
-    printf("Unable to load font1! \n");
-  }
-
-  font2 = XLoadQueryFont (XtDisplay(toplevel),fontName2);
-  if (!font2) {
-     font2 = XLoadQueryFont (XtDisplay(toplevel),fontName5);
-  } 
-
-  if (font2) {
-     fontList2 = XmFontListCreate(font2, charset);
-  } else {
-     printf("Unable to load font2! \n");
-  }
-
-}
-
+Widget panel, name, commands, start, stop, help, quit,
+  nameTag, data, status, edit, adjust, history, info, option;
 XtAppContext app;
 Widget productDescriptionShell;
+atom         channel;
 
-main(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-  int n;
-  Arg        wargs[5];
+    int n,i;
+    Arg wargs[5];
+    char *pvname=(char *)0;
 
-  toplevel = XtVaAppInitialize(&app, "Probe", NULL, 0, 
-                          &argc, argv, NULL, NULL);
-
-#ifdef DEBUG
-  XSynchronize(XtDisplay(toplevel),TRUE);
-  fprintf(stderr,"\nRunning in SYNCHRONOUS mode!!");
+  /* WIN32 initialization */
+#ifdef WIN32	
+    HCLXmInit();
+#if 0
+    fprintf(stderr,"Probe: (1/4) Test fprintf to stderr\n");
+    fprintf(stdout,"Probe: (2/4) Test fprintf to stdout\n");
+    printf("Probe: (3/4) Test printf\n");
+    lprintf("Probe: (4/4) Test lprintf\n");
+#endif
 #endif
 
-  createFonts();
-  initChannel(&channel);
+  /* Setup */
+    ca_pend_io_time=CA_PEND_IO_TIME;
+
+  /* Initialize Xt */
+    toplevel = XtAppInitialize(&app, "Probe", NULL, 0, &argc, argv,
+      fallbackResources, NULL, 0);
+    display=XtDisplay(toplevel);
+
+#ifdef DEBUG
+    XSynchronize(display,TRUE);
+    (stderr,"\nRunning in SYNCHRONOUS mode!!\n");
+#endif
+
+    createFonts();
+    watch=XCreateFontCursor(display,XC_watch);
+    initChannel(&channel);
 
   /*
    * Create a XmPanedWindow widget to hold everything.
    */
-  panel = XtVaCreateManagedWidget("panel", 
-                                xmPanedWindowWidgetClass,
-                                toplevel,
-                                XmNsashWidth, 1,
-                                XmNsashHeight, 1,
-                                NULL);
-
+    panel = XtVaCreateManagedWidget("panel", 
+      xmPanedWindowWidgetClass,
+      toplevel,
+      XmNsashWidth, 1,
+      XmNsashHeight, 1,
+      NULL);
+    
   /*
    * Create a XmRowColumn widget to hold the name and value of
    *    the process variable.
    */
-  display = XtCreateManagedWidget("display", 
-                                   xmRowColumnWidgetClass,
-                                   panel, NULL, 0);
+    name = XtCreateManagedWidget("name", 
+      xmRowColumnWidgetClass,
+      panel, NULL, 0);
   /*
    * An XmLabel widget shows the current process variable name.
    */ 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  channel.d[LABEL1].w = XtCreateManagedWidget("Channel name", 
-                                xmLabelWidgetClass,
-                                 display, wargs, n);
-  channel.d[LABEL1].proc = updateLabelDisplay;
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    channel.d[LABEL1].w = XtCreateManagedWidget("Channel name", 
+      xmLabelWidgetClass,
+      name, wargs, n);
+    channel.d[LABEL1].proc = updateLabelDisplay;
 
   /*
    * An XmLabel widget shows the current process variable value.
    */ 
-  n = 0;
-  if (font2) {
-    XtSetArg(wargs[n],  XmNfontList, fontList2); n++;
-  }
-  channel.d[DISPLAY1].w = XtCreateManagedWidget("Channel value", 
-                                xmLabelWidgetClass,
-                                display, wargs, n);
-  channel.d[DISPLAY1].proc = updateDataDisplay;
+    n = 0;
+    if (font2) {
+	XtSetArg(wargs[n],  XmNfontList, fontList2); n++;
+    }
+    channel.d[DISPLAY1].w = XtCreateManagedWidget("Channel value", 
+      xmLabelWidgetClass,
+      name, wargs, n);
+    channel.d[DISPLAY1].proc = updateDataDisplay;
 
-  n = 0;
-  channel.d[STATUS1].w = XtCreateManagedWidget("status", 
-                                xmLabelWidgetClass,
-                                display, wargs, n);
-  channel.d[STATUS1].proc = updateStatusDisplay;
+    n = 0;
+    channel.d[STATUS1].w = XtCreateManagedWidget("status", 
+      xmLabelWidgetClass,
+      name, wargs, n);
+    channel.d[STATUS1].proc = updateStatusDisplay;
 
   /*
-   * An XmTextField widget for user enter the process varible name 
+   * An XmTextField widget to enter the process variable name 
    *   interactively.
    */ 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  channel.d[TEXT1].w = XtCreateManagedWidget("edit", xmTextFieldWidgetClass,
-                              panel, wargs, n);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    channel.d[TEXT1].w = XtCreateManagedWidget("edit", xmTextFieldWidgetClass,
+      panel, wargs, n);
 
-  XtAddCallback(channel.d[TEXT1].w, XmNactivateCallback, getChan,&channel);
+    XtAddCallback(channel.d[TEXT1].w,XmNactivateCallback,
+      getChan,&channel);
 
   /*
    * Add start, stop, help, and quit buttons and register callbacks.
    * Pass the corresponding widget to each callbacks.
    */ 
-  n = 0;
-  XtSetArg(wargs[n],  XmNorientation, XmHORIZONTAL); n++;
-  XtSetArg(wargs[n],  XmNnumColumns, 2); n++;
-  XtSetArg(wargs[n],  XmNpacking, XmPACK_COLUMN);n++;
-  commands = XtCreateManagedWidget("commands", 
-                                   xmRowColumnWidgetClass,
-                                   panel, wargs, n);
+    n = 0;
+    XtSetArg(wargs[n],  XmNorientation, XmHORIZONTAL); n++;
+    XtSetArg(wargs[n],  XmNnumColumns, 2); n++;
+    XtSetArg(wargs[n],  XmNpacking, XmPACK_COLUMN);n++;
+    commands = XtCreateManagedWidget("commands", 
+      xmRowColumnWidgetClass,
+      panel, wargs, n);
 
   /* 
    *  Create 'start' button.
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  start = XtCreateManagedWidget("Start", 
-                                 xmPushButtonWidgetClass,
-                                 commands, wargs, n);
-  XtAddCallback(start,XmNactivateCallback,startMonitor,&channel);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    start = XtCreateManagedWidget("Start", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(start,XmNactivateCallback,startMonitor,&channel);
 
   /* 
    *  Create 'stop' button
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  stop = XtCreateManagedWidget("Stop", 
-                               xmPushButtonWidgetClass,
-                               commands, wargs, n);
-  XtAddCallback(stop, XmNactivateCallback,stopMonitor,&channel);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    stop = XtCreateManagedWidget("Stop", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(stop,XmNactivateCallback,stopMonitor,&channel);
 
   /* 
    *  Create 'help' button
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  help = XtCreateManagedWidget("Version", 
-                               xmPushButtonWidgetClass,
-                               commands, wargs, n);
-  XtAddCallback(help, XmNactivateCallback,helpMonitor,&productDescriptionShell);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    help = XtCreateManagedWidget("Version", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(help,XmNactivateCallback,helpMonitor,&productDescriptionShell);
 
   /* 
    *  Create 'quit' button
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  quit = XtCreateManagedWidget("Quit", 
-                               xmPushButtonWidgetClass,
-                               commands, wargs, n);
-  XtAddCallback(quit, XmNactivateCallback,quitMonitor,&channel);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    quit = XtCreateManagedWidget("Quit", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(quit,XmNactivateCallback,quitMonitor,&channel);
 
   /* 
    *  Create 'adjust' button
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  adjust = XtCreateManagedWidget("Adjust", 
-                               xmPushButtonWidgetClass,
-                               commands, wargs, n);
-  XtAddCallback(adjust, XmNactivateCallback,adjustCallback,&channel);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    adjust = XtCreateManagedWidget("Adjust", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(adjust,XmNactivateCallback,adjustCallback,&channel);
 
   /* 
    *  Create 'hist' button
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  history = XtCreateManagedWidget("Hist", 
-                               xmPushButtonWidgetClass,
-                               commands, wargs, n);
-  XtAddCallback(history, XmNactivateCallback,histCallback,&channel);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    history = XtCreateManagedWidget("Hist", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(history,XmNactivateCallback,histCallback,&channel);
 
   /* 
-   *  Create 'F2' button
+   *  Create 'Info' button
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  info = XtCreateManagedWidget("Info", 
-                               xmPushButtonWidgetClass,
-                               commands, wargs, n);
-  XtAddCallback(info, XmNactivateCallback,infoCallback,&channel);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    info = XtCreateManagedWidget("Info", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(info,XmNactivateCallback,infoCallback,&channel);
 
   /* 
-   *  Create 'option' button
+   *  Create 'Format' button
    */
 
-  n = 0;
-  if (font) {
-    XtSetArg(wargs[n],  XmNfontList, fontList); n++;
-  }
-  option = XtCreateManagedWidget("Format", 
-                               xmPushButtonWidgetClass,
-                               commands, wargs, n);
-  XtAddCallback(option, XmNactivateCallback,formatCallback,&channel);
+    n = 0;
+    if (font) {
+	XtSetArg(wargs[n],  XmNfontList, fontList); n++;
+    }
+    option = XtCreateManagedWidget("Format", 
+      xmPushButtonWidgetClass,
+      commands, wargs, n);
+    XtAddCallback(option,XmNactivateCallback,formatCallback,&channel);
 
 
-  if (probeCATaskInit()) 
-    exit(1);
+    if (probeCATaskInit()) 
+      exit(1);
 
-  if (argc == 2) {
-    printf("PV = %s\n",argv[1]);
-    initChan(argv[1],&channel);
-  }
-     
+  /* Realize */
+    XtRealizeWidget(toplevel);
+    mainwindow=XtWindow(toplevel);
 
-  XtRealizeWidget(toplevel);
-  {
-    char versionString[50];
-    sprintf(versionString,"%s (%s)",PROBE_VERSION_STRING,EPICS_VERSION_STRING);
-    productDescriptionShell =    
-      createAndPopupProductDescriptionShell(app,toplevel,
-      "Probe", fontList, NULL,
-      "Probe - a channel access utility",NULL,
-      versionString,
-      "developed at Argonne National Laboratory, by Frederick Vong", NULL,
-         -1,-1,3);
-  }
-  XtAppMainLoop(app);
+  /* Parse command line */
+    for (i=1; i < argc; i++) {
+	if (argv[i][0] == '-') {
+	    switch(argv[i][1]) {
+	    case 'w':
+		ca_pend_io_time=atoi(argv[++i]);
+		break;
+	    case 'h':
+		usage();
+		exit(0);
+	    default:
+		xerrmsg("Invalid option: %s",argv[i]);
+		exit(1);
+	    }
+	} else {
+	    pvname=argv[i];
+	}
+    }
 
+  /* Initialize  a given pvname */
+    if(pvname) {
+	errmsg("PV = %s\n",pvname);
+	initChan(pvname,&channel);
+    }
+
+  /* Splash screen */
+    {
+	char versionString[50];
+	sprintf(versionString,"%s (%s)",PROBE_VERSION_STRING,EPICS_VERSION_STRING);
+	productDescriptionShell =    
+	  createAndPopupProductDescriptionShell(app,toplevel,
+	    "Probe", fontList, NULL,
+	    "Probe - A channel Access Utility",NULL,
+	    versionString,
+	    "Developed at Argonne National Laboratory, by Frederick Vong", NULL,
+	    -1,-1,3);
+    }
+
+  /* Main loop */
+    XtAppMainLoop(app);
+    return 0;
 }
 
+static void createFonts()
+{
+  /* Create fonts */
+
+    font = XLoadQueryFont (display,fontName);
+    if (!font) {
+	font = XLoadQueryFont (display,fontName3);
+    } 
+
+    if (font) {
+	fontList = XmFontListCreate(font, charset);
+    }else {
+	errmsg("Unable to load font!\n");
+    }
+
+    font1 = XLoadQueryFont (display,fontName1);
+    if (!font1) {
+	font1 = XLoadQueryFont (display,fontName4);
+    } 
+
+    if (font1) {
+	fontList1 = XmFontListCreate(font1, charset);
+    } else {
+	errmsg("Unable to load font1!\n");
+    }
+
+    font2 = XLoadQueryFont (display,fontName2);
+    if (!font2) {
+	font2 = XLoadQueryFont (display,fontName5);
+    } 
+
+    if (font2) {
+	fontList2 = XmFontListCreate(font2, charset);
+    } else {
+	errmsg("Unable to load font2!\n");
+    }
+}
+
+void winPrintf(Widget w, ...)
+{
+    char     *format;
+    va_list   args;
+    char      str[1024];  /* DANGER: Fixed buffer size */
+    Arg       wargs[1];
+    XmString  xmstr;
+  /*
+   * Init the variable length args list.
+   */
+    va_start(args,w);
+  /*
+   * Extract the format to be used.
+   */
+    format = va_arg(args, char *);
+  /*
+   * Use vsprintf to format the string to be displayed in the
+   * XmLabel widget, then convert it to a compound string
+   */
+    vsprintf(str, format, args);
+
+    xmstr =  XmStringLtoRCreate(str, XmSTRING_DEFAULT_CHARSET);
+
+    XtSetArg(wargs[0], XmNlabelString, xmstr);
+    XtSetValues(w, wargs, 1);     
+
+    va_end(args);
+}
+
+int errmsg(const char *fmt, ...)
+{
+    va_list vargs;
+    static char lstring[1024];  /* DANGER: Fixed buffer size */
+    int nchars=0;
+    
+    va_start(vargs,fmt);
+    nchars+=vsprintf(lstring,fmt,vargs);
+    va_end(vargs);
+    
+    if(lstring[0] != '\0') {
+#ifdef WIN32
+	lprintf("%s\n",lstring);
+#else
+	fprintf(stderr,"%s\n",lstring);
+#endif
+    }
+    return nchars;
+}
+
+int xerrmsg(const char *fmt, ...)
+{
+    Widget warningbox,child;
+    XmString cstring;
+    va_list vargs;
+    static char lstring[1024];  /* DANGER: Fixed buffer size */
+    int nchars=0;
+    int nargs=10;
+    Arg args[10];
+    
+    va_start(vargs,fmt);
+    nchars+=vsprintf(lstring,fmt,vargs);
+    va_end(vargs);
+    
+    if(lstring[0] != '\0') {
+	XBell(display,50); XBell(display,50); XBell(display,50); 
+	cstring=XmStringCreateLtoR(lstring,XmSTRING_DEFAULT_CHARSET);
+	nargs=0;
+	XtSetArg(args[nargs],XmNtitle,"Warning"); nargs++;
+	XtSetArg(args[nargs],XmNmessageString,cstring); nargs++;
+	warningbox=XmCreateWarningDialog(toplevel,"warningMessage",
+	  args,nargs);
+	XmStringFree(cstring);
+	child=XmMessageBoxGetChild(warningbox,XmDIALOG_CANCEL_BUTTON);
+	XtDestroyWidget(child);
+	child=XmMessageBoxGetChild(warningbox,XmDIALOG_HELP_BUTTON);
+	XtDestroyWidget(child);
+	XtManageChild(warningbox);
+	XtAddCallback(warningbox,XmNokCallback,(XtCallbackProc)XtDestroyWidget,NULL);
+#ifdef WIN32
+	lprintf("%s\n",lstring);
+#else
+	fprintf(stderr,"%s\n",lstring);
+#endif
+    }
+    return nchars;
+}
+
+static void usage(void)
+{
+    errmsg(
+      "Usage is: \n"
+      "probe [Options] [pvname]\n"
+      "  Options:\n"
+      "    -w time   Wait time seconds for CA connections [%d]\n"
+      "    -h        Help (This message)\n",
+      CA_PEND_IO_TIME);
+}
