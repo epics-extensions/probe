@@ -5,7 +5,7 @@
 #include <Xm/RowColumn.h>
 #include <Xm/PushB.h>
 #include <Xm/ToggleB.h>
-#include <Xm/Text.h>
+#include <Xm/TextF.h>
 #include <Xm/PanedW.h>
 #include <Xm/MessageB.h>
 
@@ -252,13 +252,26 @@ void getChan(
   XtPointer callbackStruct)
 {
   atom    *channel = (atom *) clientData;
-  char tmp[40];
+  char *text;
+  char *name;
+  char *tmp;
   int  stat;
 
-  if ((channel->connected) && (channelIsAlreadyConnected(XmTextGetString(w),channel))) {
+  name = text = XmTextFieldGetString(w);
+  /* skip the leading space */
+  while (*name == ' ') {
+    name++;
+  }
+  if (tmp = strstr(name,"\n")) {
+    *tmp = '\0';
+  }
+
+  XmTextFieldSetString(w,name);
+  
+  if ((channel->connected) && (channelIsAlreadyConnected(name,channel))) {
     printf("channel is already connected!\n");
   } else {
-    connectChannel(XmTextGetString(w),channel);
+    connectChannel(name,channel);
   }
 
 
@@ -274,6 +287,7 @@ void getChan(
   } else {
     updateDisplay(channel);
   }   
+  XtFree(text);
 }
 
 void startMonitor(

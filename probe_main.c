@@ -6,15 +6,15 @@
 #include <Xm/Label.h>
 #include <Xm/RowColumn.h>
 #include <Xm/PushB.h>
-#include <Xm/Text.h>
+#include <Xm/TextF.h>
 #include <Xm/PanedW.h>
 #include <Xm/MessageB.h>
 #include "epicsVersion.h"
 
 #define PROBE_VERSION       1
 #define PROBE_REVISION      0
-#define PROBE_UPDATE_LEVEL  5
-#define PROBE_VERSION_STRING "PROBE VERSION 1.0.5"
+#define PROBE_UPDATE_LEVEL  6
+#define PROBE_VERSION_STRING "PROBE VERSION 1.0.6"
 
 /*	
  *       System includes for CA		
@@ -213,14 +213,14 @@ main(int argc, char *argv[])
   channel.d[STATUS1].proc = updateStatusDisplay;
 
   /*
-   * An XmText widget for user enter the process varible name 
+   * An XmTextField widget for user enter the process varible name 
    *   interactively.
    */ 
   n = 0;
   if (font) {
     XtSetArg(wargs[n],  XmNfontList, fontList); n++;
   }
-  channel.d[TEXT1].w = XtCreateManagedWidget("edit", xmTextWidgetClass,
+  channel.d[TEXT1].w = XtCreateManagedWidget("edit", xmTextFieldWidgetClass,
                               panel, wargs, n);
 
   XtAddCallback(channel.d[TEXT1].w, XmNactivateCallback, getChan,&channel);
