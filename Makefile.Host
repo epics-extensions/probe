@@ -72,7 +72,7 @@ SRCS +=	probe_main.c
 SRCS +=	productDescriptionShell.c
 
 RCS_WIN32 += probe.rc
-alh.res:../probe.ico
+probe.res:../probe.ico
 
 include $(TOP)/config/RULES.Host
 
