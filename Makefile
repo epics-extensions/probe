@@ -1,6 +1,6 @@
 ADD_ON = ../..
 
-include $(ADD_ON)/src/admin/CONFIG
+include $(ADD_ON)/src/config/CONFIG
 
 USR_CFLAGS = $(MOTIF_CFLAGS) $(X11_CFLAGS)
 USR_LDFLAGS = $(MOTIF_LDFLAGS) $(X11_LDFLAGS) -lm
@@ -37,7 +37,7 @@ OBJS = \
 
 PROD = probe
 
-include $(ADD_ON)/src/admin/RULES
+include $(ADD_ON)/src/config/RULES
 
 probe: $(OBJS) $(DEP_LIBS)
 	$(CC) -o $@ $(OBJS) $(LDFLAGS)
