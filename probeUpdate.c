@@ -1,3 +1,5 @@
+#define DEBUG_WINSOCK 0
+
 #include <stdarg.h>
 #include <stdio.h>
 #include <X11/Intrinsic.h>
@@ -165,6 +167,9 @@ void updateDisplay(atom *channel)
     int i;
 
     if (channel->updateMask != NO_UPDATE) {
+#if DEBUG_WINSOCK
+	fprintf(stderr,"updateDisplay: (! NO_UPDATE)\n");
+#endif	
 	mask = 1;
 	mask = mask << (LAST_ITEM - 1);
 	for (i=(LAST_ITEM-1);i>=0;i--) {

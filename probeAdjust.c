@@ -156,7 +156,7 @@ void textAdjustCallback(Widget w, XtPointer clientData,
 	if (sscanf(XmTextGetString(channel->d[TEXT1].w),"%ld", &outputL)) {
 	    channel->data.L.value = outputL;
 	} else {
-	    xerrmsg("textAdjustCallback : Must be a integer.\n");
+	    xerrmsg("textAdjustCallback : Must be an integer.\n");
 	    return;
 	}
 	break;

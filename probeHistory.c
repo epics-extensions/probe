@@ -121,12 +121,14 @@ void updateHistory(atom *channel)
 	n = 0;
 	XtSetArg(wargs[n], XmNmessageString, xmstr); n++;
 	XtSetValues(channel->hist.dialog, wargs, n);  
+	XmStringFree(xmstr);
     } else {
 	sprintf(message,"No Channel History Available!");
 	xmstr =  XmStringLtoRCreate(message, XmSTRING_DEFAULT_CHARSET);
 	n = 0;
 	XtSetArg(wargs[n], XmNmessageString, xmstr); n++;
 	XtSetValues(channel->hist.dialog, wargs, n);  
+	XmStringFree(xmstr);
     }
     channel->hist.updateMask = NO_UPDATE; 
     channel->updateMask &= ~UPDATE_HIST;  
@@ -206,6 +208,7 @@ void histCallback(Widget w, XtPointer clientData,
     int        n;
     Widget     label, help;
     Arg        wargs[5];
+    XmString xmstr;
   
     if (channel->upMask & HISTORY_UP) return;
   /*
@@ -230,9 +233,10 @@ void histCallback(Widget w, XtPointer clientData,
     help = XmMessageBoxGetChild (channel->hist.dialog,
       XmDIALOG_HELP_BUTTON);
     n = 0;
-    XtSetArg(wargs[n],XmNlabelString,XmStringLtoRCreate("Reset",
-      XmSTRING_DEFAULT_CHARSET));n++;
+    xmstr =  XmStringLtoRCreate("Reset", XmSTRING_DEFAULT_CHARSET);
+    XtSetArg(wargs[n],XmNlabelString,xmstr);n++;
     XtSetValues(help, wargs, n);
+    XmStringFree(xmstr);
 
     label = XmMessageBoxGetChild (channel->hist.dialog,
       XmDIALOG_MESSAGE_LABEL);

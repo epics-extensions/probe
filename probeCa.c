@@ -1,3 +1,5 @@
+#define DEBUG_WINSOCK 0
+
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
 #include <Xm/Xm.h>
@@ -50,18 +52,32 @@ extern XmFontList fontList2;
 extern XFontStruct *font2;
 extern XtAppContext app;
 
-void probeCAException(struct exception_handler_args arg)
+void probeCAException(struct exception_handler_args args)
 {
-    chid	pCh;
-    int		stat;
-
-    pCh = arg.chid;
-    stat = arg.stat;
-    if(pCh) {
-	xerrmsg("probeCAException: Entered for %s.\n",ca_name(pCh));
-    } else {
-	xerrmsg("probeCAException: Entered with NULL chid.\n",ca_name(pCh));
-    }
+    xerrmsg("probeCAException: Channel Access Exception:\n"
+      "  Channel Name: %s\n"
+      "  Native Type: %s\n"
+      "  Native Count: %hu\n"
+      "  Access: %s%s\n"
+      "  IOC: %s\n"
+      "  Message: %s\n"
+      "  Context: %s\n"
+      "  Requested Type: %s\n"
+      "  Requested Count: %ld\n"
+      "  Source File: %s\n"
+      "  Line number: %u",
+      args.chid?ca_name(args.chid):"Unavailable",
+      args.chid?dbf_type_to_text(ca_field_type(args.chid)):"Unavailable",
+      args.chid?ca_element_count(args.chid):0,
+      args.chid?(ca_read_access(args.chid)?"R":""):"Unavailable",
+      args.chid?(ca_write_access(args.chid)?"W":""):"",
+      args.chid?ca_host_name(args.chid):"Unavailable",
+      ca_message(args.stat)?ca_message(args.stat):"Unavailable",
+      args.ctx?args.ctx:"Unavailable",
+      dbf_type_to_text(args.type),
+      args.count,
+      args.pFile?args.pFile:"Unavailable",
+      args.pFile?args.lineNo:0);
 }
 
 int probeCATaskInit()
@@ -472,6 +488,9 @@ void printData(struct event_handler_args arg)
     atom *channel = (atom *) arg.usr;
     char *tmp = (char *) &(channel->data);
 
+#if DEBUG_WINSOCK
+	fprintf(stderr,"printData: \n");
+#endif	
   /*
    * Ask Unix for the time.
    */
@@ -489,9 +508,22 @@ void updateMonitor(XtPointer clientData, XtIntervalId *id)
     long     next_second = 5;
     int stat;
 
-    if ((channel->upMask & MONITOR_UP) == 0) return;
+#if DEBUG_WINSOCK
+    fprintf(stderr,"updateMonitor: 1\n");
+#endif	
 
+    if ((channel->upMask & MONITOR_UP) == 0) return;
+    
+#if DEBUG_WINSOCK
+    fprintf(stderr,"updateMonitor: 2\n");
+#endif	
+    
     stat = ca_pend_event(0.001);
+
+#if DEBUG_WINSOCK
+    fprintf(stderr,"updateMonitor: 3\n");
+#endif	
+
     if ((stat != ECA_NORMAL) && (stat != ECA_TIMEOUT)) {
 	xerrmsg("upDateMonitor: ca_pend_event failed. Error(%d)\n",ip);
     }

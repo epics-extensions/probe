@@ -37,6 +37,7 @@ extern Widget createAndPopupProductDescriptionShell();
 /* Function prototypes */
 
 static void createFonts();
+void killWidget(Widget w, XtPointer clientdata, XtPointer calldata);
 static void usage(void);
 
 /* Resources */
@@ -398,9 +399,9 @@ void winPrintf(Widget w, ...)
     vsprintf(str, format, args);
 
     xmstr =  XmStringLtoRCreate(str, XmSTRING_DEFAULT_CHARSET);
-
     XtSetArg(wargs[0], XmNlabelString, xmstr);
     XtSetValues(w, wargs, 1);     
+    XmStringFree(xmstr);
 
     va_end(args);
 }
@@ -450,13 +451,18 @@ void xerrmsg(const char *fmt, ...)
 	child=XmMessageBoxGetChild(warningbox,XmDIALOG_HELP_BUTTON);
 	XtDestroyWidget(child);
 	XtManageChild(warningbox);
-	XtAddCallback(warningbox,XmNokCallback,(XtCallbackProc)XtDestroyWidget,NULL);
+	XtAddCallback(warningbox,XmNokCallback,killWidget,NULL);
 #ifdef WIN32
 	lprintf("%s\n",lstring);
 #else
 	fprintf(stderr,"%s\n",lstring);
 #endif
     }
+}
+
+void killWidget(Widget w, XtPointer clientdata, XtPointer calldata)
+{
+    XtDestroyWidget(w);
 }
 
 static void usage(void)
