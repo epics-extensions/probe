@@ -23,8 +23,6 @@
 #include <Xm/Protocols.h>
 #include <X11/Xatom.h>
 
-#define PROBE_VERSION_STRING "PROBE VERSION 1.1.2"
-
 /* System includes for CA */
 
 #include <cadef.h>
