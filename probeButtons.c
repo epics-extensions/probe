@@ -1,8 +1,13 @@
+/*************************************************************************\
+* Copyright (c) 2002 The University of Chicago, as Operator of Argonne
+* National Laboratory.
+* Copyright (c) 2002 The Regents of the University of California, as
+* Operator of Los Alamos National Laboratory.
+* This file is distributed subject to a Software License Agreement found
+* in the file LICENSE that is included with this distribution. 
+\*************************************************************************/
 /*
- * .01  vong     022696     fix the problem in destroyButtons.
- *                          use the MAX_ADJUST_BUTTONS in the
- *                          clean up for loop instead of the 
- *                          ch->info.data.E.no_str.
+ * $Id$
  */
 #include <X11/Intrinsic.h>
 #include <X11/StringDefs.h>
