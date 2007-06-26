@@ -20,7 +20,7 @@
 #include <Xm/Text.h>
 #include <Xm/MessageB.h>
 
-#ifdef  WIN32
+#ifdef  EXCEED
 #include <X11/XlibXtra.h>
 #endif
 

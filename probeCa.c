@@ -112,7 +112,7 @@ int probeCATaskInit(atom *channel)
   /* CA Stuff */
     int stat;
 
-#ifdef WIN32
+#ifdef EXCEED
 /*    int stat1; */
 
     stat = ca_task_initialize();

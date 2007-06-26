@@ -23,7 +23,7 @@
 #include <Xm/MessageB.h>
 #include "epicsVersion.h"
 
-#ifdef  WIN32
+#ifdef  EXCEED
 #include <X11/XlibXtra.h>
 #endif
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
     char *pvname=(char *)0;
 
   /* WIN32 initialization */
-#ifdef WIN32
+#ifdef EXCEED
     HCLXmInit();
 #if 0
     fprintf(stderr,"Probe: (1/4) Test fprintf to stderr\n");
@@ -436,7 +436,7 @@ void errmsg(const char *fmt, ...)
     va_end(vargs);
     
     if(lstring[0] != '\0') {
-#ifdef WIN32
+#ifdef EXCEED
 	lprintf("%s\n",lstring);
 #else
 	fprintf(stderr,"%s\n",lstring);
@@ -472,7 +472,7 @@ void xerrmsg(const char *fmt, ...)
 	XtDestroyWidget(child);
 	XtManageChild(warningbox);
 	XtAddCallback(warningbox,XmNokCallback,killWidget,NULL);
-#ifdef WIN32
+#ifdef EXCEED
 	lprintf("%s\n",lstring);
 #else
 	fprintf(stderr,"%s\n",lstring);

@@ -30,7 +30,7 @@
 #include <Xm/PushB.h>
 #include <Xm/MwmUtil.h>
 
-#ifdef WIN32
+#ifdef EXCEED
 /* Hummingbird extra functions including lprintf
  *   Needs to be included after Intrinsic.h for Exceed 5 */
 #include <X11/XlibXtra.h>
@@ -312,7 +312,7 @@ Widget createAndPopupProductDescriptionShell(
     XtSetArg(args[n],XmNx,newX); n++;
     XtSetValues(productDescriptionShell,args,n);
     
-#ifdef WIN32
+#ifdef EXCEED
   /* Seems to be an Exceed bug that it doesn't get set the first time */
     n=0;
     XtSetArg(args[n],XmNy,newY); n++;

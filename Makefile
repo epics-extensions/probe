@@ -54,11 +54,23 @@ USR_LIBS_DEFAULT = Xm Xt X11
 USR_LIBS_Linux = Xm Xt Xp Xmu X11
 USR_LIBS_cygwin32 = Xm Xt X11 SM ICE
 
+ifeq ($(T_A),win32-x86)
 WIN32_RUNTIME=MD
 USR_CFLAGS_WIN32 += /DWIN32 /D_WINDOWS
 USR_LDFLAGS_WIN32 += /SUBSYSTEM:WINDOWS
 USR_LIBS_WIN32 += $(EXCEED_XLIBS)
 USR_CFLAGS_WIN32 += $(EXCEED_CFLAGS)
+RCS_WIN32 += probe.rc
+USR_CFLAGS_WIN32 += /DEXCEED
+endif
+
+ifeq ($(T_A),win32-x86-mingw)
+ifdef EXCEED
+USR_CFLAGS_WIN32 += -DEXCEED
+USR_LIBS_WIN32 = $(EXCEED_XLIBS)
+USR_LDFLAGS_WIN32 = -L$(X11_LIB) -rpath,$(X11_LIB)
+endif
+endif
 
 ca_DIR = $(EPICS_BASE_LIB)
 Com_DIR = $(EPICS_BASE_LIB)
@@ -79,8 +91,6 @@ SRCS +=	probeSlider.c
 SRCS +=	probeUpdate.c
 SRCS +=	probe_main.c
 SRCS +=	productDescriptionShell.c
-
-RCS_WIN32 += probe.rc
 
 include $(TOP)/configure/RULES
 
