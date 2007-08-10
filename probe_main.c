@@ -35,6 +35,7 @@
 
 #include <cadef.h>
 
+#define PROBE_ALLOCATE_STORAGE
 #include "probe.h"
 
 extern Widget createAndPopupProductDescriptionShell();
