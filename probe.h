@@ -146,13 +146,13 @@ typedef struct HIStruct {
     short        currentSeverity;
     short        lastSeverity;
    
-    long         startTime;
-    long         lastMaxTime;
-    long         lastMinTime;
-    long         currentStatusTime;
-    long         lastStatusTime;
-    long         currentSeverityTime;
-    long         lastSeverityTime;
+    time_t       startTime;
+    time_t       lastMaxTime;
+    time_t       lastMinTime;
+    time_t       currentStatusTime;
+    time_t       lastStatusTime;
+    time_t       currentSeverityTime;
+    time_t       lastSeverityTime;
 
     char         startTimeStr[12];
     char         lastMaxTimeStr[12];
