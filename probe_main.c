@@ -90,6 +90,7 @@ int main(int argc, char *argv[])
     int n,i;
     Arg wargs[5];
     char *pvname=(char *)0;
+    char versionString[] = PROBE_VERSION_STRING " (" EPICS_VERSION_STRING ")";
 
   /* WIN32 initialization */
 #ifdef EXCEED
@@ -343,8 +344,6 @@ int main(int argc, char *argv[])
 
   /* Splash screen */
     {
-	char versionString[50];
-	sprintf(versionString,"%s (%s)",PROBE_VERSION_STRING,EPICS_VERSION_STRING);
 	productDescriptionShell =    
 	  createAndPopupProductDescriptionShell(app,toplevel,
 	    "Probe", fontList, NULL,
