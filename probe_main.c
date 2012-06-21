@@ -463,8 +463,13 @@ void xerrmsg(const char *fmt, ...)
 	nargs=0;
 	XtSetArg(args[nargs],XmNtitle,"Warning"); nargs++;
 	XtSetArg(args[nargs],XmNmessageString,cstring); nargs++;
+#ifndef WIN32
 	warningbox=XmCreateWarningDialog(toplevel,"warningMessage",
 	  args,nargs);
+#else
+	warningbox=XmCreateMessageDialog(toplevel,"warningMessage",
+	  args,nargs);
+#endif
 	XmStringFree(cstring);
 	child=XmMessageBoxGetChild(warningbox,XmDIALOG_CANCEL_BUTTON);
 	XtDestroyWidget(child);
@@ -491,7 +496,11 @@ int questionDialog(char *message, char *okBtnLabel, char *cancelBtnLabel,
     if(message == NULL) return -1;
     
   /* Create the dialog */
+#ifndef WIN32
     questionDialog = XmCreateQuestionDialog(toplevel,"questionDialog",NULL,0);
+#else
+    questionDialog = XmCreateMessageDialog(toplevel,"questionDialog",NULL,0);
+#endif
     XtVaSetValues(questionDialog,XmNdialogStyle,XmDIALOG_APPLICATION_MODAL,
       NULL);
     XtVaSetValues(XtParent(questionDialog),XmNtitle,"Question ?",NULL);
@@ -597,7 +606,7 @@ static void usage(void)
 char *timeStamp(void)
 {
 	static char timeStampStr[16];
-	long now;
+	time_t now;
 	struct tm *tblock;
 	
 	time(&now);
