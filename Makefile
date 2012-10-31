@@ -86,7 +86,7 @@ ca_DIR = $(EPICS_BASE_LIB)
 Com_DIR = $(EPICS_BASE_LIB)
 Xm_DIR = $(MOTIF_LIB)
 Xt_DIR = $(X11_LIB)
-Xp_DIR = $(MOTIF_LIB)
+Xp_DIR = $(X11_LIB)
 Xmu_DIR = $(X11_LIB)
 X11_DIR = $(X11_LIB)
 
