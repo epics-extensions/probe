@@ -54,7 +54,7 @@ void updateInfo(atom *channel)
 	sprintf(message,"%sCOUNT: %ld\n",message,(long)ca_element_count(channel->chId));
 	sprintf(message,"%sACCESS: %s%s\n",message,
 	  ca_read_access(channel->chId)?"R":"",ca_write_access(channel->chId)?"W":"");
-	sprintf(message,"%sIOC: %s\n\n",message,ca_host_name(channel->chId));
+	sprintf(message,"%sHOST: %s\n\n",message,ca_host_name(channel->chId));
 	switch(ca_field_type(channel->chId)) {
         case DBF_STRING : 
 	    break;
